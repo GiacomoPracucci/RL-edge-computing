@@ -1,25 +1,25 @@
-# Reinforcement Learning per la gestione del traffico in un sistema di Edge Computing 
+# Reinforcement Learning for Traffic Management in an Edge Computing System 
 
-## Descrizione
-Questo progetto propone l'implementazione di un algoritmo di apprendimento per rinforzo, Deep Deterministic Policy Gradient (DDPG), per ottimizzare la gestione di carichi di lavoro in un sistema di Edge Computing. L'obiettivo è trovare la policy ottimale per l'elaborazione locale, l'inoltro delle richieste a nodi edge e il rifiuto di richieste in base alle condizioni del sistema.   
-L'implementazione attuale presenta ancora ipotesi semplificatrici rispetto lo scenario reale.
+## Description
+This project proposes the implementation of a reinforcement learning algorithm, Deep Deterministic Policy Gradient (DDPG), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.
+The current implementation still has simplifying assumptions compared to the real scenario.
 
 ![Immagine 2023-06-30 143629](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/cc469b30-55a2-4374-81b7-a58b71c60e7b)
 
-## Ambiente
-L'ambiente simula un sistema di elaborazione distribuito con una capacità di elaborazione locale massima e una coda per gestire le richieste in arrivo. Ad ogni nuovo episodio, l'ambiente viene resettato con le seguenti condizioni:  
+## Environment
+The environment simulates a distributed processing system with maximum local processing capacity and a queue to handle incoming requests. At each new episode, the environment is reset with the following conditions:  
 
-- Capacità di CPU massima (50 unità)  
-- Capacità della coda massima (100 richieste)  
-- Le richieste vengono generate secondo una funzione sinusoidale con un minimo di 50, un massimo di 150 e un periodo di 99. Si assume che tutte le richieste richiedano la stessa quantità di CPU.  
+- Maximum CPU capacity (50 units)  
+- Maximum queue capacity (100 units)  
+- Requests are generated according to a sinusoidal function with a minimum of 50, a maximum of 150, and a period of 99. All requests are assumed to require the same amount of CPU.  
 
-Uno "step" termina quando la coda si riempie, indicando una congestione del sistema. Al termine di ogni step, vengono aggiornate le informazioni sullo stato del sistema, incluse la capacità della CPU e la capacità della coda.  
+A "step" ends when the queue fills up, indicating system congestion. At the end of each step, system status information, including CPU capacity and queue capacity, is updated.  
 
-L'obiettivo è favorire l'elaborazione locale a meno che la coda non sia quasi piena. In tal caso, per evitare la congestione, l'agente deve inoltrare le richieste.
+The goal is to prioritize local processing unless the queue is nearly full. In that case, to avoid congestion, the agent must forward requests.
 
 ## DDPG
-L'algoritmo DDPG è implementato in TensorFlow. I parametri dell'algoritmo non sono stati ottimizzati attraverso una specifica tecnica, ma attraverso vari tentativi di addestramento.  
+The DDPG algorithm is implemented in TensorFlow. The parameters of the algorithm were not optimized through a specific technique, but through various training attempts and certainly need more precise tuning.    
 
-Viene definito un buffer di riproduzione (Replay Buffer) da cui vengono campionate le esperienze. Per evitare episodi infiniti in caso di politiche ottimali, viene fissato un massimo di 50 steps per episodio.  
+To avoid endless episodes in the case of optimal policies, a maximum of 50 steps per episode is set.    
 
-Per favorire l'esplorazione in un contesto deterministico, viene introdotto rumore di Ornstein-Uhlenbeck (OU) che modifica l'output della rete attore. Il valore di sigma per il rumore di OU inizia da un livello relativamente alto (0.30) e decade nel corso degli episodi.
+To aid exploration in a deterministic context, Ornstein-Uhlenbeck (OU) noise is introduced to modify the output of the actor network. The sigma value for OU noise starts from a relatively high level (0.30) and decays over the course of episodes.
