@@ -1,7 +1,7 @@
 # Reinforcement Learning for Traffic Management in an Edge Computing System 
 
 ## Description
-This project proposes the implementation of a reinforcement learning algorithm, Deep Deterministic Policy Gradient (DDPG), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.
+This project proposes the implementation of a reinforcement learning algorithm, Deep Deterministic Policy Gradient (DDPG), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
 The current implementation still has simplifying assumptions compared to the real scenario.
 
 ![Immagine 2023-06-30 151938](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/88cad69c-059b-4be4-bd4e-87aaa07a4d2d)
