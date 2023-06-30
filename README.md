@@ -1,7 +1,7 @@
 # Reinforcement Learning per la gestione del traffico in un sistema di Edge Computing 
 
 ## Descrizione
-Questo progetto propone l'implementazione di un algoritmo di apprendimento per rinforzo, Deep Deterministic Policy Gradient (DDPG), per ottimizzare la gestione di carichi di lavoro in un sistema di elaborazione distribuito. L'obiettivo è trovare la policy ottimale per l'elaborazione locale, l'inoltro delle richieste a nodi edge e il rifiuto di richieste in base alle condizioni del sistema. 
+Questo progetto propone l'implementazione di un algoritmo di apprendimento per rinforzo, Deep Deterministic Policy Gradient (DDPG), per ottimizzare la gestione di carichi di lavoro in un sistema di Edge Computing. L'obiettivo è trovare la policy ottimale per l'elaborazione locale, l'inoltro delle richieste a nodi edge e il rifiuto di richieste in base alle condizioni del sistema. 
 L'implementazione attuale presenta ancora ipotesi semplificatrici rispetto lo scenario reale.
 
 ## Ambiente
