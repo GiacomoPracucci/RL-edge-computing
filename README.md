@@ -4,9 +4,6 @@
 This project proposes the implementation of a reinforcement learning algorithm, Deep Deterministic Policy Gradient (DDPG), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
 The current implementation still has simplifying assumptions compared to the real scenario.
 
-![Immagine 2023-06-30 151938](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/88cad69c-059b-4be4-bd4e-87aaa07a4d2d)
-
-
 ## Environment
 The environment simulates a distributed processing system with maximum local processing capacity and a queue to handle incoming requests. At each new episode, the environment is reset with the following conditions:  
 
@@ -17,6 +14,8 @@ The environment simulates a distributed processing system with maximum local pro
 A "step" ends when the queue fills up, indicating system congestion. At the end of each step, system status information, including CPU capacity and queue capacity, is updated.  
 
 The goal is to prioritize local processing unless the queue is nearly full. In that case, to avoid congestion, the agent must forward requests.
+
+![Immagine 2023-06-30 151938](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/88cad69c-059b-4be4-bd4e-87aaa07a4d2d)
 
 ## DDPG
 The DDPG algorithm is implemented in TensorFlow. The parameters of the algorithm were not optimized through a specific technique, but through various training attempts and certainly need more precise tuning.    
