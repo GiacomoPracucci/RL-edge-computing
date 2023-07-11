@@ -1,7 +1,7 @@
 # Reinforcement Learning for Traffic Management in an Edge Computing System 
 
 ## Description
-This project proposes the implementation of a reinforcement learning algorithms (DDPG and SAC), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
+This project proposes the implementation of reinforcement learning algorithms (DDPG and SAC), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
 The current implementation still has simplifying assumptions compared to the real scenario.
 
 ## Environment
