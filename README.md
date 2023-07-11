@@ -15,7 +15,7 @@ The goal is to prioritize local processing unless the queue is nearly full. In t
 
 ![Immagine 2023-06-30 151938](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/88cad69c-059b-4be4-bd4e-87aaa07a4d2d)
 
-## DDPG
+## DDPG and SAC
 The DDPG algorithm is implemented in TensorFlow and SAC is implemented in pytorch. The parameters of the algorithms were not optimized through a specific technique, but through various training attempts and certainly need more precise tuning.    
 
 To avoid endless episodes in the case of optimal policies, a maximum of 100 steps per episode is set.    
