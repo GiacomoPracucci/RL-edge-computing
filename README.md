@@ -12,5 +12,3 @@ The environment simulates a distributed processing system with maximum local pro
 - Requests are generated according to a sinusoidal function with a minimum of 50, a maximum of 150, and a period of 99. All requests are assumed to require the same amount of CPU.   
 
 The goal is to prioritize local processing unless the queue is nearly full. In that case, to avoid congestion, the agent must forward requests.
-
-![Immagine 2023-06-30 151938](https://github.com/GiacomoPracucci/Tesi-RL/assets/94844087/88cad69c-059b-4be4-bd4e-87aaa07a4d2d)
