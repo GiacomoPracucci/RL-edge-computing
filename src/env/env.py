@@ -2,7 +2,6 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 import math
-#import SAC.SAC as SAC
 
 # PROCESS THE ACTION COMING FROM THE AGENT
 # NORMALIZE AND CONVERT TO INTEGER
@@ -30,6 +29,22 @@ def process_actions(action, input_requests):
 
     return local, forwarded, rejected
 
+def sample_workload(local):
+    workload = []
+    for i in range(local):
+        sample = np.random.uniform()
+        if sample < 0.33:
+            request_class = 'A'
+            shares = np.random.randint(1, 11)  
+        elif sample < 0.67:
+            request_class = 'B'
+            shares = np.random.randint(11, 21)  
+        else:
+            request_class = 'C'
+            shares = np.random.randint(21, 31)  
+        workload.append({'class': request_class, 'shares': shares, 'position': i})
+    return workload
+
 # CALCULATE THE REWARD
 def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor):
     reward_local = 3 * local * QUEUE_factor
@@ -41,14 +56,13 @@ def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor):
 
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
-    def __init__(self, CPU_capacity = 50, queue_capacity = 100, queue_length = 0, forward_capacity = 100, average_requests = 100, amplitude_requests = 50, period=50):
+    def __init__(self, CPU_capacity = 50, queue_capacity = 100, forward_capacity = 100, average_requests = 100, amplitude_requests = 50, period=50):
         super().__init__()
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
         self.observation_space = spaces.Box(low = np.array([50, 0, 0]), high = np.array([150, 100, 100]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
-        self.queue_length = queue_length
 
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -69,7 +83,6 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity = self.max_queue_capacity
         self.forward_capacity = self.max_forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
-        self.queue_length = 0
 
         return np.array([self.input_requests, self.queue_capacity, self.forward_capacity], dtype=np.float32)
     
@@ -90,17 +103,25 @@ class TrafficManagementEnv(gym.Env):
 
         reward = calculate_reward1(self.local, self.forwarded, self.rejected, self.QUEUE_factor, self.FORWARD_factor)
         print(f"REWARD: {reward}")
-
-        self.queue_length = max(0, self.local - self.CPU_capacity)
-        self.CPU_capacity = max(-100, self.max_CPU_capacity - self.queue_length)
-        self.queue_capacity = max(0, self.max_queue_capacity - self.queue_length)
+        
+        local_workload = sample_workload(self.local)
+        self.CPU_workload = []
+        self.queue_workload = []
+        for request in local_workload:
+            if self.CPU_capacity >= request['shares']:
+                self.CPU_capacity -= request['shares']
+                self.CPU_workload.append(request)
+            else:
+                self.queue_workload.append(request)
+        queue_length_share = sum(request['shares'] for request in self.queue_workload)
+        self.CPU_capacity = max(-1000, self.max_CPU_capacity - queue_length_share)
+        queue_length_requests = len(self.queue_workload)
+        self.queue_capacity = max(0, self.max_queue_capacity - queue_length_requests)
 
         self.forward_capacity = int(25 + 75 * (1 + math.sin(2 * math.pi * self.t / self.period)) / 2)
         self.forward_capacity_t = self.forward_capacity
-
         
         self.t += 1
-
         if self.t == 100:
             done = True
         else:
