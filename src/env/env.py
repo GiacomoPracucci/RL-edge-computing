@@ -56,7 +56,7 @@ def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor):
 
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
-    def __init__(self, CPU_capacity = 50, queue_capacity = 100, forward_capacity = 100, average_requests = 100, amplitude_requests = 50, period=50):
+    def __init__(self, CPU_capacity = 1000, queue_capacity = 100, forward_capacity = 100, average_requests = 100, amplitude_requests = 50, period=50):
         super().__init__()
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
         self.observation_space = spaces.Box(low = np.array([50, 0, 0]), high = np.array([150, 100, 100]), dtype = np.float32)
