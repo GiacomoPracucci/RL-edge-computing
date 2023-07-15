@@ -4,17 +4,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
-from SAC.SAC import SAC
 from SAC.replay_buffer import ReplayBuffer
-from env.env import TrafficManagementEnv
 
 def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=100, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'logs/SAC/' + current_time
+    train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/SAC/' + current_time
     writer = SummaryWriter(train_log_dir)
     
-    replay_buffer = ReplayBuffer(max_size=buffer_size, state_dim=env.observation_space.shape[0], action_dim=env.action_space.shape[0])
+    replay_buffer = ReplayBuffer(max_size=buffer_size, state_dim=env.observation_space.shape[0], 
+                                 action_dim=env.action_space.shape[0])
     total_rewards = []
     actor_losses = []
     critic1_losses = []
@@ -76,7 +75,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     metrics = pd.DataFrame({'Reward': total_rewards, 'Actor Loss': actor_losses, 'Alpha Loss': alpha_losses,
                             'Critic 1 Loss': critic1_losses, 'Critic 2 Loss': critic2_losses})
     metrics.to_csv('metrics.csv')
-
+    
     plt.figure(figsize=(12, 8))
     plt.plot(metrics['Critic 1 Loss'].rolling(10).mean(), label='Critic1 Loss')
     plt.plot(metrics['Critic 2 Loss'].rolling(10).mean(), label='Critic2 Loss')
@@ -84,6 +83,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
     plt.legend()
+    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/critic_losses.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -91,6 +91,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.title('Actor Loss')
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
+    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/actor_loss.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -99,6 +100,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
     plt.legend()
+    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/alpha_loss.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -106,4 +108,5 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.title('Rewards')
     plt.xlabel('Episodes')
     plt.ylabel('Reward')
+    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/reward.png")
     plt.show()

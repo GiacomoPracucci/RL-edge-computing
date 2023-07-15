@@ -2,57 +2,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 import math
-
-# PROCESS THE ACTION COMING FROM THE AGENT
-# NORMALIZE AND CONVERT TO INTEGER
-# ASSIGN THE REMAINING REQUEST (AFTER NORM) TO THE ACTION WITH THE HIGHEST FRACTION
-def process_actions(action, input_requests):
-    action_sum = np.sum(action)
-    if action_sum == 0:
-        action_sum += 1e-8
-    action /= action_sum
-
-    local = int(action[0] * input_requests)
-    forwarded = int(action[1] * input_requests)
-    rejected = int(action[2] * input_requests)
-    local_fraction= (action[0] * input_requests) - local
-    forwarded_fraction = (action[1] * input_requests) - forwarded
-    rejected_fraction = (action[2] * input_requests) - rejected
-    total_actions = local + forwarded + rejected
-
-    if total_actions < input_requests:
-        fractions = [local_fraction, forwarded_fraction, rejected_fraction]
-        actions = [local, forwarded, rejected]
-        max_fraction_index = np.argmax(fractions)
-        actions[max_fraction_index] += input_requests - total_actions
-        local, forwarded, rejected = actions
-
-    return local, forwarded, rejected
-
-def sample_workload(local):
-    workload = []
-    for i in range(local):
-        sample = np.random.uniform()
-        if sample < 0.33:
-            request_class = 'A'
-            shares = np.random.randint(1, 11)  
-        elif sample < 0.67:
-            request_class = 'B'
-            shares = np.random.randint(11, 21)  
-        else:
-            request_class = 'C'
-            shares = np.random.randint(21, 31)  
-        workload.append({'class': request_class, 'shares': shares, 'position': i})
-    return workload
-
-# CALCULATE THE REWARD
-def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor):
-    reward_local = 3 * local * QUEUE_factor
-    reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
-    reward_rejected = -5 * rejected * FORWARD_factor * QUEUE_factor
-    reward = reward_local + reward_forwarded + reward_rejected
-
-    return reward
+from env.env_functions import process_actions, sample_workload, calculate_reward1
 
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
@@ -126,7 +76,6 @@ class TrafficManagementEnv(gym.Env):
             done = True
         else:
             done = False
-            
         self.input_requests = self.calculate_requests()
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity], dtype=np.float32)
         

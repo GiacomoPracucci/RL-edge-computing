@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.dirichlet import Dirichlet
-from env.env import TrafficManagementEnv
 
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
