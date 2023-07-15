@@ -1,4 +1,4 @@
-# How to move between code scripts
+# How to navigate through code scripts
 
 Code scripts are organized in the following way:
 1. The `SAC` folder contains scripts related to the implementation of the Soft-Actor Critic algorithm.
