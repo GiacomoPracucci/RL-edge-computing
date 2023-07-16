@@ -7,8 +7,8 @@ The current implementation still has simplifying assumptions compared to the rea
 ## Environment
 The environment simulates a distributed processing system with maximum local processing capacity and a queue to handle incoming requests. At each new episode, the environment is reset with the following conditions:  
 
-- Maximum CPU capacity (50 units)  
+- Maximum CPU capacity (1000 shares)  
 - Maximum queue capacity (100 units)  
-- Requests are generated according to a sinusoidal function with a minimum of 50, a maximum of 150, and a period of 99. All requests are assumed to require the same amount of CPU.   
+- Requests are generated according to a sinusoidal function with a minimum of 50, a maximum of 150, and a period of 99. 
 
 The goal is to prioritize local processing unless the queue is nearly full. In that case, to avoid congestion, the agent must forward requests.
