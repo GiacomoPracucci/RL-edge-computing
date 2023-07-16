@@ -1,14 +1,20 @@
 # Reinforcement Learning for Traffic Management in an Edge Computing System 
 
 ## Description
-This project proposes the implementation of a reinforcement learning algorithms (SAC), to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
+This project proposes the implementation of a reinforcement learning algorithms (SAC), to optimize `workload management in an Edge Computing system`. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
 The current implementation still has simplifying assumptions compared to the real scenario.
 
-## Environment
-The environment simulates a distributed processing system with maximum local processing capacity and a queue to handle incoming requests. At each new episode, the environment is reset with the following conditions:  
+In the simulated environment, the agent receives a sequence of incoming requests over time. It must decide, at each step, to process these requests locally, forward them to another system, or reject them. The number of incoming requests can change over time, following a sinusoidal function.
 
-- Maximum CPU capacity (1000 shares)  
-- Maximum queue capacity (100 units)  
-- Requests are generated according to a sinusoidal function with a minimum of 50, a maximum of 150, and a period of 99. 
+The `action space` is a three-dimensional continuous box where each dimension corresponds to the proportions of requests that are processed locally, forwarded, or rejected.
 
-The goal is to prioritize local processing unless the queue is nearly full. In that case, to avoid congestion, the agent must forward requests.
+The `observation space` consists of four components:
+- The number of incoming requests
+- The remaining queue capacity
+- The remaining forward capacity
+- A congestion flag, indicating whether the queue is congested
+
+The `reward function` in this environment depends on the actions taken by the agent and the system state. The reward function provides more points for processing requests locally and fewer points for forwarding requests. It penalizes the system heavily for rejecting requests and for causing congestion in the queue.
+
+## Results
+![download](https://github.com/GiacomoPracucci/RL-edge-computing/assets/94844087/4ae669dc-18b7-4205-b06c-4c9c2fe4acdd)
