@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from SAC.replay_buffer import ReplayBuffer
 
-def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=100, 
+def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=2000, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/SAC/' + current_time
@@ -74,7 +74,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
 
     metrics = pd.DataFrame({'Reward': total_rewards, 'Actor Loss': actor_losses, 'Alpha Loss': alpha_losses,
                             'Critic 1 Loss': critic1_losses, 'Critic 2 Loss': critic2_losses})
-    metrics.to_csv('metrics.csv')
+    metrics.to_csv('C:/Users/giaco/Desktop/local-git/metrics.csv')
     
     plt.figure(figsize=(12, 8))
     plt.plot(metrics['Critic 1 Loss'].rolling(10).mean(), label='Critic1 Loss')

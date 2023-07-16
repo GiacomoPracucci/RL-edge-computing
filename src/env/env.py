@@ -6,10 +6,11 @@ from env.env_functions import process_actions, sample_workload, calculate_reward
 
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
-    def __init__(self, CPU_capacity = 1000, queue_capacity = 100, forward_capacity = 100, average_requests = 100, amplitude_requests = 50, period=50):
+    def __init__(self, CPU_capacity = 1000, queue_capacity = 100, forward_capacity = 100, 
+                 average_requests = 100, amplitude_requests = 50, period=50, congestione =0):
         super().__init__()
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 0]), high = np.array([150, 100, 100]), dtype = np.float32)
+        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -18,6 +19,8 @@ class TrafficManagementEnv(gym.Env):
         self.amplitude_requests = amplitude_requests
         self.period = period
         self.t = 0
+        
+        self.congestione = congestione
 
         self.max_forward_capacity = forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
@@ -33,10 +36,12 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity = self.max_queue_capacity
         self.forward_capacity = self.max_forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
+        self.congestione = 0
 
-        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity], dtype=np.float32)
+        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
     
     def step(self, action):
+        print(f"Stato sistema: {self.congestione}")
         print(f"INPUT: {self.input_requests}")
         print(f"CPU Capacity: {self.CPU_capacity}")
         print(f"Queue Capacity: {self.queue_capacity}")
@@ -51,7 +56,7 @@ class TrafficManagementEnv(gym.Env):
         self.QUEUE_factor = self.queue_capacity / self.max_queue_capacity
         self.FORWARD_factor = self.forward_capacity / self.max_forward_capacity
 
-        reward = calculate_reward1(self.local, self.forwarded, self.rejected, self.QUEUE_factor, self.FORWARD_factor)
+        reward = calculate_reward1(self.local, self.forwarded, self.rejected, self.QUEUE_factor, self.FORWARD_factor, self.congestione)
         print(f"REWARD: {reward}")
         
         local_workload = sample_workload(self.local)
@@ -70,6 +75,7 @@ class TrafficManagementEnv(gym.Env):
 
         self.forward_capacity = int(25 + 75 * (1 + math.sin(2 * math.pi * self.t / self.period)) / 2)
         self.forward_capacity_t = self.forward_capacity
+        self.congestione = 1 if self.queue_capacity == 0 else 0
         
         self.t += 1
         if self.t == 100:
@@ -77,6 +83,6 @@ class TrafficManagementEnv(gym.Env):
         else:
             done = False
         self.input_requests = self.calculate_requests()
-        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity], dtype=np.float32)
+        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
         
         return state, reward, done

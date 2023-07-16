@@ -47,10 +47,17 @@ def sample_workload(local):
     return workload
 
 # REWARD FUNCTION
-def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor):
-    reward_local = 3 * local * QUEUE_factor
-    reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
-    reward_rejected = -5 * rejected * FORWARD_factor * QUEUE_factor
-    reward = reward_local + reward_forwarded + reward_rejected
+def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, congestione):
+    
+    if congestione == 0:
+        reward_local = 3 * local * QUEUE_factor
+        reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
+        reward_rejected = -10 * rejected * FORWARD_factor * QUEUE_factor
+        reward = reward_local + reward_forwarded + reward_rejected
+    else:
+        reward_local = -10 * local
+        reward_forwarded = 2 * forwarded * FORWARD_factor
+        reward_rejected = 2 * rejected * (1 - FORWARD_factor)
+        reward = reward_local + reward_forwarded + reward_rejected - 200
 
     return reward
