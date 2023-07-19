@@ -4,7 +4,7 @@
 This project proposes the implementation of a reinforcement learning algorithms (SAC), to optimize `workload management in an Edge Computing system`. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
 The current implementation still has simplifying assumptions compared to the real scenario.
 
-In the simulated environment, the agent receives a sequence of incoming requests over time. It must decide, at each step, to process these requests locally, forward them to another system, or reject them. The number of incoming requests can change over time, following a sinusoidal function.
+In the simulated environment, the agent receives a sequence of incoming requests over time. It must decide, at each step, to process these requests locally, forward them to another edge node, or reject them. The number of incoming requests can change over time, following a sinusoidal function.
 
 The `action space` is a three-dimensional continuous box where each dimension corresponds to the proportions of requests that are processed locally, forwarded, or rejected.
 
