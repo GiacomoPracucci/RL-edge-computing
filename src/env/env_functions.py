@@ -35,15 +35,18 @@ def sample_workload(local):
             request_class = 'A'
             mean, std_dev = 5.5, 2.5
             shares = np.clip(np.random.normal(mean, std_dev), 1, 10)  
+            dfaas_mb = np.clip(np.random.normal(100.5, 10), 51, 150)  # Campionamento per la classe A
         elif sample < 0.67:
             request_class = 'B'
             mean, std_dev = 15.5, 2.5 
             shares = np.clip(np.random.normal(mean, std_dev), 11, 20)
+            dfaas_mb = np.clip(np.random.normal(200.5, 10), 151, 250)  # Campionamento per la classe B
         else:
             request_class = 'C'
             mean, std_dev = 25.5, 2.5
             shares = np.clip(np.random.normal(mean, std_dev), 21, 30)
-        workload.append({'class': request_class, 'shares': shares, 'position': i})
+            dfaas_mb = np.clip(np.random.normal(300.5, 10), 251, 350)  # Campionamento per la classe C
+        workload.append({'class': request_class, 'shares': shares, 'dfaas_mb': dfaas_mb, 'position': i})
     return workload
 
 # REWARD FUNCTION
