@@ -42,7 +42,7 @@ class Critic(nn.Module):
 
 # SAC AGENT
 class SAC:
-    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.8, tau=0.005, 
+    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.7, tau=0.005, 
                  target_entropy = None):
         self.device = device
         self.actor = Actor(state_dim, action_dim).to(device)
