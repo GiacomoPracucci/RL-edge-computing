@@ -6,6 +6,7 @@ Code scripts are organized in the following way:
       - replay_buffer.py contains the implementation of the replay_buffer class necessary for the operation of SAC
 2. The `env` folder contains scripts related to the implementation of the environment
       - env.py contains the class that defines the core part of the environment (the observation space, actions, what happens at reset and the dynamics of each step).
-      - env_functions.py contains functions that will be used in the main environment class (reward function, action processing and function that implements the dynamics between CPU_capacity and the buffer queue)
-3. The `training folder` contains the training.py file, which specifies how agent training takes place (episodes, result graphs, etc.).
+      - workload_management.py contains the class in which the dynamics related to CPU request allocation and buffer queue management are defined
+      - env_functions.py contains functions that will be used in the main environment class (reward function, process actions)
+3. The `training folder` contains the training.py file, which specifies how agent training takes place (episodes, results graphs, etc.).
 4. `run_experiment.py` is the file that needs to be run to launch the training
