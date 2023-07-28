@@ -1,5 +1,6 @@
 import neat
 import matplotlib.pyplot as plt
+import os
 from env.env import TrafficManagementEnv
 
 class ExtendedStatisticsReporter(neat.StatisticsReporter):
@@ -64,7 +65,7 @@ def run():
                          config_path)
 
     pop = neat.Population(config)
-    checkpointer = neat.Checkpointer(50, None)  # salva ogni 5 generazioni
+    checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
     pop.add_reporter(checkpointer)
     
     # Utilizza l'ExtendedStatisticsReporter al posto del neat.StatisticsReporter
@@ -72,6 +73,43 @@ def run():
     pop.add_reporter(stats)
     pop.add_reporter(neat.StdOutReporter(True))
 
-    winner = pop.run(eval_genomes, 200)
+    winner = pop.run(eval_genomes, 100)
 
     return winner, stats
+
+"""
+def find_latest_checkpoint(directory):
+    #Trova l'ultimo checkpoint nella directory specificata.
+    checkpoints = [f for f in os.listdir(directory) if "neat-checkpoint-" in f]
+    if not checkpoints:
+        return None
+    return os.path.join(directory, max(checkpoints, key=lambda x: int(x.split('-')[-1])))
+
+def run():
+    config_path = "C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt"
+    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         config_path)
+
+    checkpoint_path = "C:/Users/giaco/Desktop/tesi-git"  # Aggiorna con il percorso corretto dei tuoi checkpoint
+    latest_checkpoint = find_latest_checkpoint(checkpoint_path)
+
+    if latest_checkpoint:
+        # Carica la popolazione dal checkpoint
+        pop = neat.Checkpointer.restore_checkpoint(latest_checkpoint)
+    else:
+        # Crea una nuova popolazione
+        pop = neat.Population(config)
+
+    checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
+    pop.add_reporter(checkpointer)
+    
+    # Utilizza l'ExtendedStatisticsReporter al posto del neat.StatisticsReporter
+    stats = ExtendedStatisticsReporter()
+    pop.add_reporter(stats)
+    pop.add_reporter(neat.StdOutReporter(True))
+
+    winner = pop.run(eval_genomes, 100)
+
+    return winner, stats
+"""
