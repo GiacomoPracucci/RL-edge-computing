@@ -9,7 +9,7 @@ Code scripts are organized in the following way:
       - env.py contains the class that defines the core part of the environment (the observation space, actions, what happens at reset and the dynamics of each step).
       - workload_management.py contains the class in which the dynamics related to CPU request allocation and buffer queue management are defined
       - env_functions.py contains functions that will be used in the main environment class (reward function, process actions)
-4. The `training folder` contains the training.py file, which specifies how agent training takes place (episodes, results graphs, etc.).
+4. The `training folder` contains the training.py file for SAC training, which specifies how agent training takes place (episodes, results graphs, etc.).
 5.
    - `run_SAC.py` is the file that needs to be run to launch the training of SAC
    - `run_NEAT.py` is the file that needs to be run to launch the training of NEAT
