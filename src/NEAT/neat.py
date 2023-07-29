@@ -1,7 +1,9 @@
 import neat
 import matplotlib.pyplot as plt
-import os
 from env.env import TrafficManagementEnv
+import pytorch_lightning as pl
+from torch.utils.data import DataLoader, Dataset
+import torch
 
 class ExtendedStatisticsReporter(neat.StatisticsReporter):
     def __init__(self):
@@ -22,7 +24,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
         super().end_generation(config, population, species)
 
         # Salva grafici ogni N generazioni
-        if self.generation % 49 == 0:
+        if self.generation % 9 == 0:
             self.plot_statistics()
         self.generation += 1  # Increment the generation counter.
 
@@ -58,58 +60,43 @@ def eval_genomes(genomes, config):
         if genome.fitness is None:
             print("Warning: Fitness is None for genome_id", genome_id)
 
-def run():
-    config_path = "C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt"
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_path)
+# this class generate a fake tensor for the DataLoader of lightning
+class DummyDataset(Dataset):
+    def __len__(self):
+        return 1
 
-    pop = neat.Population(config)
-    checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
-    pop.add_reporter(checkpointer)
+    def __getitem__(self, idx):
+        return torch.tensor([0])
+
+class NeatLightningModule(pl.LightningModule):
+    def __init__(self, config_path):
+        super(NeatLightningModule, self).__init__()
+        
+        # Carica la configurazione NEAT
+        self.config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                  neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                  config_path)
+        
+        # Crea una popolazione NEAT
+        self.pop = neat.Population(self.config)
+        
+        # Aggiungi reporter per salvare e stampare le statistiche
+        self.checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
+        self.pop.add_reporter(self.checkpointer)
+        
+        self.stats = ExtendedStatisticsReporter()
+        self.pop.add_reporter(self.stats)
+        self.pop.add_reporter(neat.StdOutReporter(True))
+
+    def training_step(self, batch, batch_idx):
+        # Qui viene eseguito il tuo training loop principale
+        winner = self.pop.run(eval_genomes, 10)
+        loss = torch.tensor([-winner.fitness], requires_grad=True)
+        return {'loss': loss} 
     
-    # Utilizza l'ExtendedStatisticsReporter al posto del neat.StatisticsReporter
-    stats = ExtendedStatisticsReporter()
-    pop.add_reporter(stats)
-    pop.add_reporter(neat.StdOutReporter(True))
-
-    winner = pop.run(eval_genomes, 100)
-
-    return winner, stats
-
-"""
-def find_latest_checkpoint(directory):
-    #Trova l'ultimo checkpoint nella directory specificata.
-    checkpoints = [f for f in os.listdir(directory) if "neat-checkpoint-" in f]
-    if not checkpoints:
+    def configure_optimizers(self):
+        # NEAT non è basato su gradienti, quindi non c'è un vero e proprio ottimizzatore
         return None
-    return os.path.join(directory, max(checkpoints, key=lambda x: int(x.split('-')[-1])))
-
-def run():
-    config_path = "C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt"
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_path)
-
-    checkpoint_path = "C:/Users/giaco/Desktop/tesi-git"  # Aggiorna con il percorso corretto dei tuoi checkpoint
-    latest_checkpoint = find_latest_checkpoint(checkpoint_path)
-
-    if latest_checkpoint:
-        # Carica la popolazione dal checkpoint
-        pop = neat.Checkpointer.restore_checkpoint(latest_checkpoint)
-    else:
-        # Crea una nuova popolazione
-        pop = neat.Population(config)
-
-    checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
-    pop.add_reporter(checkpointer)
     
-    # Utilizza l'ExtendedStatisticsReporter al posto del neat.StatisticsReporter
-    stats = ExtendedStatisticsReporter()
-    pop.add_reporter(stats)
-    pop.add_reporter(neat.StdOutReporter(True))
-
-    winner = pop.run(eval_genomes, 100)
-
-    return winner, stats
-"""
+    def train_dataloader(self):
+        return DataLoader(DummyDataset(), batch_size=1)
