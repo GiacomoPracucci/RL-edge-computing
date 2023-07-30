@@ -2,12 +2,12 @@ import pickle
 import sys
 sys.path.append('C:/Users/giaco/Desktop/tesi-git/src')
 from NEAT.neat import NeatLightningModule
-import pytorch_lightning as pl
+import lightning as L
 
 if __name__ == "__main__":
     neat_module = NeatLightningModule("C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt")
     
-    trainer = pl.Trainer(max_epochs=1, accelerator="auto")  # Puoi configurare ulteriori opzioni qui
+    trainer = L.Trainer(max_epochs=1, accelerator="auto")  # Puoi configurare ulteriori opzioni qui
     trainer.fit(neat_module)
     
     # Salvare il genoma vincente, se necessario

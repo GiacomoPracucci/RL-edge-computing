@@ -1,7 +1,7 @@
 import neat
 import matplotlib.pyplot as plt
 from env.env import TrafficManagementEnv
-import pytorch_lightning as pl
+import lightning as L
 from torch.utils.data import DataLoader, Dataset
 import torch
 
@@ -68,7 +68,7 @@ class DummyDataset(Dataset):
     def __getitem__(self, idx):
         return torch.tensor([0])
 
-class NeatLightningModule(pl.LightningModule):
+class NeatLightningModule(L.LightningModule):
     def __init__(self, config_path):
         super(NeatLightningModule, self).__init__()
         
