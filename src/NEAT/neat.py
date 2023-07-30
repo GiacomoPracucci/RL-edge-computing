@@ -7,8 +7,8 @@ import torch
 
 class ExtendedStatisticsReporter(neat.StatisticsReporter):
     def __init__(self):
-        super().__init__()  # chiama il costruttore della classe madre
-        self.generation = 0  # inizializza l'attributo generation
+        super().__init__()  
+        self.generation = 0  
     
     def post_evaluate(self, config, population, species, best_genome):
         super().post_evaluate(config, population, species, best_genome)
@@ -18,7 +18,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
             print("\n----- Statistics till Generation {} -----".format(self.generation))
             print("Mean fitness: {:.2f}".format(self.get_fitness_mean()[-1]))
             print("Max fitness: {:.2f}".format(self.get_fitness_stdev()[-1]))
-            # ... aggiungi altre statistiche se necessario
+            
 
     def end_generation(self, config, population, species):
         super().end_generation(config, population, species)
@@ -26,7 +26,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
         # Salva grafici ogni N generazioni
         if self.generation % 9 == 0:
             self.plot_statistics()
-        self.generation += 1  # Increment the generation counter.
+        self.generation += 1  # Increment the generation counter
 
     def plot_statistics(self):
         fig, ax = plt.subplots()
@@ -89,7 +89,7 @@ class NeatLightningModule(L.LightningModule):
         self.pop.add_reporter(neat.StdOutReporter(True))
 
     def training_step(self, batch, batch_idx):
-        # Qui viene eseguito il tuo training loop principale
+        # Qui viene eseguito il training loop principale
         winner = self.pop.run(eval_genomes, 10)
         loss = torch.tensor([-winner.fitness], requires_grad=True)
         return {'loss': loss} 
