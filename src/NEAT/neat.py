@@ -35,13 +35,13 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
         max_fitness_values = [genome.fitness for genome in self.most_fit_genomes]
         ax.plot(max_fitness_values, label="Max Fitness")
     
-    # Retrieve the mean fitness values for each generation and plot
+        # Retrieve the mean fitness values for each generation and plot
         mean_fitness_values = self.get_fitness_mean()
         ax.plot(mean_fitness_values, label="Mean Fitness", linestyle='--')  # Using a dashed line for mean fitness
     
         ax.set(xlabel='Generation', ylabel='Fitness', title='Fitness over Generations')
         ax.grid()
-        ax.legend()  # This will display the legend, differentiating Max and Mean fitness
+        ax.legend() 
         plt.savefig("C:/Users/giaco/Desktop/local-git/NEAT/neat_fitness_plot_gen{}.png".format(self.generation))
         plt.close()
 
@@ -90,7 +90,7 @@ class NeatLightningModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         # Qui viene eseguito il training loop principale
-        winner = self.pop.run(eval_genomes, 10)
+        winner = self.pop.run(eval_genomes, 30)
         loss = torch.tensor([-winner.fitness], requires_grad=True)
         return {'loss': loss} 
     

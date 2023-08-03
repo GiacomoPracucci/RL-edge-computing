@@ -4,6 +4,8 @@ sys.path.append('C:/Users/giaco/Desktop/tesi-git/src')
 from NEAT.neat import NeatLightningModule
 import lightning as L
 
+#fabric = L.Fabric
+#fabric.launch()
 if __name__ == "__main__":
     neat_module = NeatLightningModule("C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt")
     
