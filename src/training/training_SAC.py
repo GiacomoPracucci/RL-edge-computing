@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi-git/src')
+sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_buffer import ReplayBuffer
 
@@ -71,7 +71,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
         print(f"Episode: {episode + 1}, Reward: {episode_reward}")
 
     writer.close() 
-    agent.save_weights("C:/Users/giaco/Desktop/local-git/SAC_weights/SAC_weights")
+    agent.save_weights_SAC("C:/Users/giaco/Desktop/local-git/SAC_weights/SAC_weights")
 
     metrics = pd.DataFrame({'Reward': total_rewards, 'Actor Loss': actor_losses, 'Alpha Loss': alpha_losses,
                             'Critic 1 Loss': critic1_losses, 'Critic 2 Loss': critic2_losses})

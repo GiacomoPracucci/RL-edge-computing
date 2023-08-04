@@ -4,12 +4,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import torch
-sys.path.append('C:/Users/giaco/Desktop/tesi-git/src')
+sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 
 from torch.distributions.dirichlet import Dirichlet
 from torch.utils.tensorboard import SummaryWriter
 
-def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=350, max_steps_per_episode=100):
+def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=2000, max_steps_per_episode=100):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/PPO/' + current_time
     writer = SummaryWriter(train_log_dir)
@@ -91,6 +91,7 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=350, max_s
         print(f"Episode: {episode + 1}, Reward: {episode_reward}, Actor Loss: {avg_actor_loss}, Critic Loss: {avg_critic_loss}")
 
     writer.close() 
+    agent.save_weights_PPO("C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights")
 
     # Plot total rewards
     plt.figure(figsize=(12, 8))

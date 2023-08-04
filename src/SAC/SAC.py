@@ -138,12 +138,12 @@ class SAC:
         action = dist.sample().squeeze(0).cpu().numpy()
         return action
     
-    def save_weights(self, path):
+    def save_weights_SAC(self, path):
         torch.save(self.actor.state_dict(), path + '_actor.pth')
         torch.save(self.critic_1.state_dict(), path + '_critic1.pth')
         torch.save(self.critic_2.state_dict(), path + '_critic2.pth')
 
-    def load_weights(self, path):
+    def load_weights_SAC(self, path):
         self.actor.load_state_dict(torch.load(path + '_actor.pth'))
         self.critic_1.load_state_dict(torch.load(path + '_critic1.pth'))
         self.critic_2.load_state_dict(torch.load(path + '_critic2.pth'))

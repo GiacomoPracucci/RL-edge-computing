@@ -145,3 +145,13 @@ class PPO:
                 self.optimizer.step()
                 
                 return loss.item(), actor_loss.item(), critic_loss.item(), ent_loss.item()
+            
+    def save_weights_PPO(self, path):
+        torch.save(self.actor.state_dict(), path + '_actor.pth')
+        torch.save(self.critic.state_dict(), path + '_critic.pth')
+        #torch.save(self.optimizer.state_dict(), path + '_optimizer.pth')
+    
+    def load_weights_PPO(self, path):
+        self.actor.load_state_dict(torch.load(path + '_actor.pth'))
+        self.critic.load_state_dict(torch.load(path + '_critic.pth'))
+        #self.optimizer.load_state_dict(torch.load(path + '_optimizer.pth'))   

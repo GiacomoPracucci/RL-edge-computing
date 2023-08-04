@@ -1,11 +1,13 @@
 import neat
 import pickle
+import sys
+sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from env.env import TrafficManagementEnv
 
 with open('C:/Users/giaco/Desktop/local-git/NEAT/winner_genome.pkl', 'rb') as f:
     winner_genome = pickle.load(f)
     
-config_path = "C:/Users/giaco/Desktop/tesi-git/src/NEAT/config.txt"
+config_path = "C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt"
 config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                      neat.DefaultSpeciesSet, neat.DefaultStagnation,
                      config_path)
