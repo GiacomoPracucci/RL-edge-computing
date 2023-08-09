@@ -42,7 +42,7 @@ class Critic(nn.Module):
         return x
     
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.99, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
+    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.9, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
         self.actor = Actor(state_dim, action_dim)
         self.critic = Critic(state_dim)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)

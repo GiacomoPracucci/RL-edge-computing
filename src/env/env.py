@@ -8,19 +8,22 @@ from env.workload_management import workload
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
     def __init__(self, CPU_capacity = 1000, queue_capacity = 100, DFAAS_capacity = 8000, forward_capacity = 100,
-                average_requests = 100, amplitude_requests = 50, period=50, congestione = 0):
+                average_requests = 100, amplitude_requests = 50, period=50, congestione = 0, forward_exceed = 0):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
+        self.observation_space = spaces.Box(low = np.array([50, 0, 50, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
         self.max_DFAAS_capacity = DFAAS_capacity
         self.max_forward_capacity = forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
+        self.forward_exceed = forward_exceed
 
         self.congestione = congestione
+        self.congestione_zero_count = 0
+        self.congestione_one_count = 0
         
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -40,6 +43,7 @@ class TrafficManagementEnv(gym.Env):
         self.DFAAS_capacity = self.max_DFAAS_capacity
         self.forward_capacity = self.max_forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
+        self.forward_exceed = 0
         self.queue_shares = 0
         self.queue_workload = []
 
@@ -62,6 +66,7 @@ class TrafficManagementEnv(gym.Env):
         #3. CALCOLO I PESI PER IL SISTEMA DI RICOMPENSA E LA REWARD
         self.QUEUE_factor = self.queue_capacity / self.max_queue_capacity
         self.FORWARD_factor = self.forward_capacity / self.max_forward_capacity
+        self.forward_exceed = self.forward_capacity - self.forwarded
         reward = calculate_reward1(self.local, self.forwarded, self.rejected, 
                                    self.QUEUE_factor, self.FORWARD_factor, self.congestione)
         print(f"REWARD: {reward}")
@@ -78,9 +83,10 @@ class TrafficManagementEnv(gym.Env):
         #5. AGGIORNO LO SPAZIO DELLE OSSERVAZIONI
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
-        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione = workload.update_obs_space(self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
-                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.congestione)   
-        
+        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione, self.congestione_zero_count, self.congestione_one_count = workload.update_obs_space(self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
+                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.congestione, self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
+        print(f"Steps non in congestione: {self.congestione_zero_count}")
+        print(f"Steps in congestione: {self.congestione_one_count}")
         self.input_requests = self.calculate_requests()
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
         return state, reward, done

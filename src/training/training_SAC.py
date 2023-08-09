@@ -75,7 +75,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
 
     metrics = pd.DataFrame({'Reward': total_rewards, 'Actor Loss': actor_losses, 'Alpha Loss': alpha_losses,
                             'Critic 1 Loss': critic1_losses, 'Critic 2 Loss': critic2_losses})
-    metrics.to_csv('C:/Users/giaco/Desktop/local-git/metrics.csv')
+    metrics.to_csv('C:/Users/giaco/Desktop/local-git/metrics_SAC.csv')
     
     plt.figure(figsize=(12, 8))
     plt.plot(metrics['Critic 1 Loss'].rolling(10).mean(), label='Critic1 Loss')
