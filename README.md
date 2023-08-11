@@ -20,5 +20,8 @@ The `reward function` in this environment depends on the actions taken by the ag
 - SAC  
 ![download](https://github.com/GiacomoPracucci/RL-edge-computing/assets/94844087/4ae669dc-18b7-4205-b06c-4c9c2fe4acdd)
 
+-PPO  
+![Immagine 2023-08-11 131607](https://github.com/GiacomoPracucci/RL-edge-computing/assets/94844087/a8079088-017c-47f6-b54f-d2da941ce1f7)  
+
 - NEAT  
 ![neat_fitness_plot_gen98](https://github.com/GiacomoPracucci/RL-edge-computing/assets/94844087/43d20003-c541-4f29-b6e0-4ef494f40eb8)
