@@ -1,7 +1,7 @@
 # Reinforcement Learning for Traffic Management in an Edge Computing System 
 
 ## Description
-This project proposes the implementation of the reinforcement learning algorithm `SAC` (Soft actor-critc) and `NEAT` (Neuro Evolution of Augmenting Topologies) to optimize `workload management in an Edge Computing system`. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.  
+The project proposes the implementation of the deep reinforcement learning algorithms SAC (Soft actor-critic) and PPO (Proximal Policy Optimiziation) and of the evolutionary algorithm NEAT (Neuro Evolution of Augmenting Topologies) to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.
 The current implementation still has simplifying assumptions compared to the real scenario.
 
 In the simulated environment, the agent receives a sequence of incoming requests over time. It must decide, at each step, to process these requests locally, forward them to another edge node, or reject them. The number of incoming requests can change over time, following a sinusoidal function.
