@@ -5,20 +5,16 @@ from env.env import TrafficManagementEnv
 from PPO.PPO import PPO
 import matplotlib.pyplot as plt
 
-
-# Creo l'istanza PPO
-state_dim = 4  # Lo spazio delle osservazioni ha 4 dimensioni come definito in TrafficManagementEnv
-action_dim = 3  # Lo spazio delle azioni ha 3 dimensioni come definito in TrafficManagementEnv
+state_dim = 4  
+action_dim = 3 
 agent = PPO(state_dim, action_dim)
 
-# Carica i pesi salvati
-path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights"  # Sostituisci con il percorso effettivo
+path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights" 
 agent.load_weights_PPO(path_to_weights)
 
-env = TrafficManagementEnv()  # Puoi anche impostare altri parametri se necessario
-num_episodes = 10  # Numero di episodi da eseguire per il test
+env = TrafficManagementEnv()  
+num_episodes = 10 
 all_episode_rewards = []
-
 
 for episode in range(num_episodes):
     state = env.reset()
