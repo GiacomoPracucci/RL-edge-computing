@@ -93,7 +93,7 @@ class PPO:
         returns = advantages + values
         return advantages, returns
 
-    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=256):
+    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=512):
         # vf_coef: how much the critic loss should be weighted in the total loss. 
         #          If 1.0, then the critic loss is weighted the same as the actor loss.
 

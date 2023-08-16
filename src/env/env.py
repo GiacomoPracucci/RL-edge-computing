@@ -12,7 +12,7 @@ class TrafficManagementEnv(gym.Env):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 50, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
+        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -84,7 +84,8 @@ class TrafficManagementEnv(gym.Env):
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione, self.congestione_zero_count, self.congestione_one_count = workload.update_obs_space(self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
-                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.congestione, self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
+                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.congestione,
+                                                                                                                                                        self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
         print(f"Steps non in congestione: {self.congestione_zero_count}")
         print(f"Steps in congestione: {self.congestione_one_count}")
         self.input_requests = self.calculate_requests()

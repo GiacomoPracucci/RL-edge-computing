@@ -61,7 +61,7 @@ class workload:
 
     @staticmethod
     def update_obs_space(queue_workload, queue_capacity, max_queue_capacity, t,
-                         forward_capacity, forward_capacity_t, congestione, 
+                         forward_capacity, forward_capacity_t, period, congestione,
                          forward_exceed, congestione_zero_count, congestione_one_count):
 
         print(f"Num requests in queue: {len(queue_workload)}")
@@ -70,9 +70,7 @@ class workload:
         queue_capacity = max(0, max_queue_capacity - queue_length_requests)
         queue_shares = sum(request['shares'] for request in queue_workload)
         
-        mean = 75
-        std_dev = 10
-        forward_capacity = int(np.clip(np.random.normal(mean, std_dev), 50, 100))
+        forward_capacity = int(25 + 75 * (1 + math.sin(2 * math.pi * t / period)) / 2)
         forward_capacity_t = forward_capacity
         congestione = 1 if queue_capacity == 0 or forward_exceed < 0 else 0
         if congestione == 0:

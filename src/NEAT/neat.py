@@ -4,6 +4,13 @@ from env.env import TrafficManagementEnv
 import lightning as L
 from torch.utils.data import DataLoader, Dataset
 import torch
+import pickle
+
+
+def load_winner_genome(filename):
+    with open(filename, "rb") as f:
+        genome = pickle.load(f)
+    return genome
 
 class ExtendedStatisticsReporter(neat.StatisticsReporter):
     def __init__(self):
@@ -69,7 +76,7 @@ class DummyDataset(Dataset):
         return torch.tensor([0])
 
 class NeatLightningModule(L.LightningModule):
-    def __init__(self, config_path):
+    def __init__(self, config_path, winner_genome_path=None):
         super(NeatLightningModule, self).__init__()
         
         # Carica la configurazione NEAT
@@ -79,6 +86,15 @@ class NeatLightningModule(L.LightningModule):
         
         # Crea una popolazione NEAT
         self.pop = neat.Population(self.config)
+        
+        # Se viene fornito un genoma vincente, sostituisci il migliore della popolazione
+                # Se viene fornito un genoma vincente, sostituisci un genoma nella popolazione
+        if winner_genome_path:
+            winner_genome = load_winner_genome(winner_genome_path)
+            # Prendi un ID genoma a caso
+            genome_id = next(iter(self.pop.population.keys()))
+            # Sostituisci il genoma con l'ID selezionato con il genoma vincente
+            self.pop.population[genome_id] = winner_genome
         
         # Aggiungi reporter per salvare e stampare le statistiche
         self.checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
@@ -90,7 +106,7 @@ class NeatLightningModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         # Qui viene eseguito il training loop principale
-        winner = self.pop.run(eval_genomes, 30)
+        winner = self.pop.run(eval_genomes, 10)
         loss = torch.tensor([-winner.fitness], requires_grad=True)
         return {'loss': loss} 
     
