@@ -24,6 +24,8 @@ class TrafficManagementEnv(gym.Env):
         self.congestione = congestione
         self.congestione_zero_count = 0
         self.congestione_one_count = 0
+        self.total_managed_requests = 0
+        self.total_rejected_requests = 0
         
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -46,6 +48,7 @@ class TrafficManagementEnv(gym.Env):
         self.forward_exceed = 0
         self.queue_shares = 0
         self.queue_workload = []
+        self.total_rejected_requests = 0
 
         return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
     
@@ -59,6 +62,7 @@ class TrafficManagementEnv(gym.Env):
 
         #2. ESTRAGGO, SALVO E VISUALIZZO IL NUMERO DI RICHIESTE ELABORATE LOCALMENTE, INOLTRATE E RIFIUTATE
         self.local, self.forwarded, self.rejected = process_actions(action, self.input_requests)
+        self.total_managed_requests += self.local + self.forwarded + self.rejected
         print(f"LOCAL: {self.local}")
         print(f"FORWARDED: {self.forwarded}")
         print(f"REJECTED: {self.rejected}")
@@ -76,10 +80,10 @@ class TrafficManagementEnv(gym.Env):
         # Il campionamento per la classe avviene da una distrib uniforme, per gli shares e i dfaas_mb da una distrib normale
         # Costruisco le liste che descrivono quanto ho elaborato in CPU in questo step e quanto ho messo in coda
         # Viene data precedenza all'elaborazione delle requests in coda dallo step precedente
-        self.CPU_workload, self.queue_workload = workload.manage_workload(self.local, self.CPU_capacity, 
-                                                                    self.DFAAS_capacity, self.queue_workload, 
+        self.CPU_workload, self.queue_workload, new_rejections = workload.manage_workload(self.local, self.CPU_capacity, 
+                                                                    self.DFAAS_capacity, self.queue_workload, self.max_queue_capacity,
                                                                     self.max_CPU_capacity, self.max_DFAAS_capacity)
-        
+        self.total_rejected_requests += self.rejected + new_rejections
         #5. AGGIORNO LO SPAZIO DELLE OSSERVAZIONI
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done

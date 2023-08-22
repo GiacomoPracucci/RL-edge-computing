@@ -38,7 +38,7 @@ def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, 
         reward_local = -10 * local
         reward_forwarded = 2 * forwarded * FORWARD_factor
         reward_rejected = 2 * rejected * (1 - FORWARD_factor)
-        reward = reward_local + reward_forwarded + reward_rejected - 200
+        reward = reward_local + reward_forwarded + reward_rejected - 500
 
     return reward
 

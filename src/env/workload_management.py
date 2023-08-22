@@ -1,5 +1,7 @@
 import numpy as np
 import math
+seed = 42
+np.random.seed(seed)
 
 
 class workload:
@@ -29,11 +31,17 @@ class workload:
 
     @staticmethod
     def manage_workload(local ,CPU_capacity, DFAAS_capacity, queue_workload,
-                        max_CPU_capacity, max_DFAAS_capacity):
-        local_workload = workload.sample_workload(local)
-        CPU_workload = []
-        CPU_capacity = max_CPU_capacity
+                        max_queue_capacity, max_CPU_capacity, max_DFAAS_capacity):
+        
+        local_workload = workload.sample_workload(local) # sample del workload dal numero di richieste da elaborare in locale
+        CPU_workload = []                                # lista di richieste da elaborare in CPU
+        CPU_capacity = max_CPU_capacity 
         DFAAS_capacity = max_DFAAS_capacity
+        requests_rejected = 0                           
+        
+        # 1. Diamo precedenza alle richieste in coda dallo step precedente
+        # Se la CPU_capacity e la DFAAS_capacity sono sufficienti per soddisfare le richieste in coda,
+        # le richieste in coda vengono aggiunte alla CPU_workload e rimosse dalla queue_workload
         for request in queue_workload.copy(): 
             if CPU_capacity >= request['shares'] and DFAAS_capacity >= request['dfaas_mb']:
                 CPU_capacity -= request['shares']
@@ -44,20 +52,28 @@ class workload:
                 break
         print(f"CPU disponibile per le nuove requests: {CPU_capacity}")
         print(f"DFAAS disponibile per le nuove requests: {DFAAS_capacity}") 
-         
+        
+        # 2. Processiamo le requests local_workload
+        # Viene processata una richiesta alla volta, se la CPU_capacity e la DFAAS_capacity sono sufficienti
+        # la richiesta viene aggiunta alla CPU_workload, altrimenti viene messa in queue_workload
+        # (solo se la queue_workload non ha raggiunto la sua capacità massima)
+        # se la coda ha già raggiunto la sua capacità massima, la richiesta viene rigettata
         for request in local_workload:
             if CPU_capacity >= request['shares'] and DFAAS_capacity >= request['dfaas_mb']:
                 CPU_capacity -= request['shares']
                 DFAAS_capacity -= request['dfaas_mb']
                 CPU_workload.append(request)
             else:
-                queue_workload.append(request)
+                if len(queue_workload) < max_queue_capacity:
+                    queue_workload.append(request)
+                else:
+                    requests_rejected += 1
         
         print(f"Num requests in queue: {len(queue_workload)}")
         print(f"Shares in QUEUE: {sum(request['shares'] for request in queue_workload)}")
         print(f"MB in QUEUE: {sum(request['dfaas_mb'] for request in queue_workload)}")
 
-        return CPU_workload, queue_workload
+        return CPU_workload, queue_workload, requests_rejected
 
     @staticmethod
     def update_obs_space(queue_workload, queue_capacity, max_queue_capacity, t,
@@ -65,7 +81,6 @@ class workload:
                          forward_exceed, congestione_zero_count, congestione_one_count):
 
         print(f"Num requests in queue: {len(queue_workload)}")
-        # Update the queue_capacity
         queue_length_requests = len(queue_workload)
         queue_capacity = max(0, max_queue_capacity - queue_length_requests)
         queue_shares = sum(request['shares'] for request in queue_workload)
