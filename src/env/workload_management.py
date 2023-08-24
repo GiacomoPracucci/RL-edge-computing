@@ -1,8 +1,8 @@
 import numpy as np
 import math
+import random
 seed = 42
 np.random.seed(seed)
-
 
 class workload:
     
@@ -29,6 +29,36 @@ class workload:
             workload.append({'class': request_class, 'shares': shares, 'dfaas_mb': dfaas_mb, 'position': i})
         return workload
 
+    @staticmethod
+    def calculate_requests(average_requests, amplitude_requests, t, period):
+        return int(average_requests + amplitude_requests * math.sin(2 * math.pi * t / period))
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    # SCENARIO RANDOM-RANDOM
+    @staticmethod
+    def scenario1(average_requests=50, average_capacity=50, stddev=10):  
+        input_requests = int(random.gauss(average_requests, stddev))
+        forward_capacity = int(random.gauss(average_capacity, stddev))
+        return input_requests, forward_capacity
+
+    # SCENARIO SINUSOIDE NOISY - SINUSOIDE NOISY
+    @staticmethod
+    def scenario2(t, period, average_requests=50, amplitude_requests=50, average_capacity=50, amplitude_capacity=50, noise_ratio=0.1):  
+        base_input = average_requests + amplitude_requests * math.sin(2 * math.pi * t / period)
+        noisy_input = base_input + noise_ratio * random.gauss(0, amplitude_requests)
+        input_requests = int(noisy_input)
+
+        base_capacity = average_capacity + amplitude_capacity * math.sin(2 * math.pi * t / period)
+        noisy_capacity = base_capacity + noise_ratio * random.gauss(0, amplitude_capacity)
+        forward_capacity = int(noisy_capacity)
+
+        return input_requests, forward_capacity
+    
+    # SCENARIO SINUSOIDE - SINUSOIDE
+    def scenario3(average_requests, amplitude_requests, t, period):  
+        input_requests = int(average_requests + amplitude_requests * math.sin(2 * math.pi * t / period))
+        forward_capacity = int(25 + 75 * (1 + math.sin(2 * math.pi * t / period)) / 2)
+        return input_requests, forward_capacity
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
     @staticmethod
     def manage_workload(local ,CPU_capacity, DFAAS_capacity, queue_workload,
                         max_queue_capacity, max_CPU_capacity, max_DFAAS_capacity):
@@ -76,18 +106,25 @@ class workload:
         return CPU_workload, queue_workload, requests_rejected
 
     @staticmethod
-    def update_obs_space(queue_workload, queue_capacity, max_queue_capacity, t,
-                         forward_capacity, forward_capacity_t, period, congestione,
-                         forward_exceed, congestione_zero_count, congestione_one_count):
+    def update_obs_space(scenario, average_requests, amplitude_requests, queue_workload, queue_capacity, max_queue_capacity, t,
+                     forward_capacity, forward_capacity_t, period, congestione,
+                     forward_exceed, congestione_zero_count, congestione_one_count):
 
         print(f"Num requests in queue: {len(queue_workload)}")
         queue_length_requests = len(queue_workload)
         queue_capacity = max(0, max_queue_capacity - queue_length_requests)
         queue_shares = sum(request['shares'] for request in queue_workload)
         
-        forward_capacity = int(25 + 75 * (1 + math.sin(2 * math.pi * t / period)) / 2)
+        if scenario == "scenario1":
+            input_requests, forward_capacity = workload.scenario1(average_requests=average_requests)
+        elif scenario == "scenario2":
+            input_requests, forward_capacity = workload.scenario2(t, period, average_requests=average_requests, amplitude_requests=amplitude_requests)
+        elif scenario == "scenario3":
+            input_requests, forward_capacity = workload.scenario3(average_requests, amplitude_requests, t, period)
+
         forward_capacity_t = forward_capacity
         congestione = 1 if queue_capacity == 0 or forward_exceed < 0 else 0
+        #congestione = 1 if queue_capacity == 0 else 0
         if congestione == 0:
             congestione_zero_count += 1
         elif congestione == 1:
@@ -99,4 +136,4 @@ class workload:
         else:
             done = False
 
-        return queue_capacity, queue_shares, t, done, forward_capacity, forward_capacity_t, congestione, congestione_zero_count, congestione_one_count
+        return queue_capacity, queue_shares, t, done, forward_capacity, forward_capacity_t, congestione, congestione_zero_count, congestione_one_count, input_requests

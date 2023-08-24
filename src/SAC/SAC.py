@@ -54,7 +54,7 @@ class SAC:
         self.critic_2 = Critic(state_dim, action_dim).to(device)
         self.target_critic_1 = Critic(state_dim, action_dim).to(device)
         self.target_critic_2 = Critic(state_dim, action_dim).to(device)
-        self.soft_update(tau=1)  # Copy the critic parameters initially
+        self.soft_update(tau=1) 
 
         self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
         self.alpha_optimizer = optim.Adam([self.log_alpha], lr=lr)  
@@ -65,8 +65,8 @@ class SAC:
         self.target_entropy = target_entropy
 
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr, weight_decay=1e-3)
-        self.critic_1_optimizer = optim.Adam(self.critic_1.parameters(), lr=lr)
-        self.critic_2_optimizer = optim.Adam(self.critic_2.parameters(), lr=lr)
+        self.critic_1_optimizer = optim.Adam(self.critic_1.parameters(), lr=lr, weight_decay=1e-3)
+        self.critic_2_optimizer = optim.Adam(self.critic_2.parameters(), lr=lr, weight_decay=1e-3)
         self.critic_optimizer = optim.Adam(list(self.critic_1.parameters()) + list(self.critic_2.parameters()), lr=lr, weight_decay=1e-3)
 
         self.gamma = gamma
@@ -136,10 +136,10 @@ class SAC:
         return actor_loss.item(), critic_1_loss.item(), critic_2_loss.item(), alpha_loss.item()
 
     def select_action(self, state):
-        #with torch.no_grad():
-        state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-        dist = Dirichlet(self.actor(state))
-        action = dist.sample().squeeze(0).cpu().numpy()
+        with torch.no_grad():
+            state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+            dist = Dirichlet(self.actor(state))
+            action = dist.sample().squeeze(0).cpu().numpy()
         return action
     
     def save_weights_SAC(self, path):

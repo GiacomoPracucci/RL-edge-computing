@@ -34,9 +34,6 @@ class TrafficManagementEnv(gym.Env):
         
         self.queue_workload = []
         self.input_requests = self.calculate_requests()
-        
-    def calculate_requests(self):
-        return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))  
     
     def reset(self):
         self.t = 0
@@ -87,11 +84,12 @@ class TrafficManagementEnv(gym.Env):
         #5. AGGIORNO LO SPAZIO DELLE OSSERVAZIONI
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
-        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione, self.congestione_zero_count, self.congestione_one_count = workload.update_obs_space(self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
-                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.congestione,
-                                                                                                                                                        self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
+        scenario = "scenario3"
+        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
+                                                                                                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.congestione,
+                                                                                                                                                                                                                                        self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
         print(f"Steps non in congestione: {self.congestione_zero_count}")
         print(f"Steps in congestione: {self.congestione_one_count}")
-        self.input_requests = self.calculate_requests()
+        #self.input_requests = self.calculate_requests()
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
         return state, reward, done
