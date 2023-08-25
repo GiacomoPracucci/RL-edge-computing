@@ -7,7 +7,7 @@ sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_buffer import ReplayBuffer
 
-def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=1000, 
+def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=100, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/SAC/' + current_time

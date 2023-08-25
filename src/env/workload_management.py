@@ -123,7 +123,7 @@ class workload:
             input_requests, forward_capacity = workload.scenario3(average_requests, amplitude_requests, t, period)
 
         forward_capacity_t = forward_capacity
-        congestione = 1 if queue_capacity == 0 or forward_exceed < 0 else 0
+        congestione = 1 if queue_capacity == 0 or forward_exceed > 0 else 0
         #congestione = 1 if queue_capacity == 0 else 0
         if congestione == 0:
             congestione_zero_count += 1

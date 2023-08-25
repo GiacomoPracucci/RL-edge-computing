@@ -35,6 +35,9 @@ class TrafficManagementEnv(gym.Env):
         self.queue_workload = []
         self.input_requests = self.calculate_requests()
     
+    def calculate_requests(self):
+        return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
+    
     def reset(self):
         self.t = 0
         self.CPU_capacity = self.max_CPU_capacity
@@ -67,7 +70,7 @@ class TrafficManagementEnv(gym.Env):
         #3. CALCOLO I PESI PER IL SISTEMA DI RICOMPENSA E LA REWARD
         self.QUEUE_factor = self.queue_capacity / self.max_queue_capacity
         self.FORWARD_factor = self.forward_capacity / self.max_forward_capacity
-        self.forward_exceed = self.forward_capacity - self.forwarded
+        self.forward_exceed = self.forwarded - self.forward_capacity
         reward = calculate_reward1(self.local, self.forwarded, self.rejected, 
                                    self.QUEUE_factor, self.FORWARD_factor, self.congestione)
         print(f"REWARD: {reward}")
