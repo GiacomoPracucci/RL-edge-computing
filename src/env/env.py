@@ -8,11 +8,11 @@ from env.workload_management import workload
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
     def __init__(self, CPU_capacity = 1000, queue_capacity = 100, DFAAS_capacity = 8000, forward_capacity = 100,
-                average_requests = 100, amplitude_requests = 50, period=50, congestione = 0, forward_exceed = 0):
+                average_requests = 100, amplitude_requests = 50, period=50, cong1 = 0, cong2 = 0, forward_exceed = 0):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0]), high = np.array([150, 100, 100, 1]), dtype = np.float32)
+        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0, 0]), high = np.array([150, 100, 100, 1, 1]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -21,7 +21,8 @@ class TrafficManagementEnv(gym.Env):
         self.forward_capacity_t = self.max_forward_capacity
         self.forward_exceed = forward_exceed
 
-        self.congestione = congestione
+        self.cong1 = cong1
+        self.cong2 = cong2
         self.congestione_zero_count = 0
         self.congestione_one_count = 0
         self.total_managed_requests = 0
@@ -49,12 +50,18 @@ class TrafficManagementEnv(gym.Env):
         self.queue_shares = 0
         self.queue_workload = []
         self.total_rejected_requests = 0
+        
+        self.cong1 = 0
+        self.cong2 = 0
 
-        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
+        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
     
     def step(self, action):
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA
-        print(f"Stato del Sistema: {self.congestione}")
+        print(f"Stato del Sistema 1: {self.cong1}")
+        print(f"Stato del Sistema 2: {self.cong2}")
+        print(f"Steps non in congestione: {self.congestione_zero_count}")
+        print(f"Steps in congestione: {self.congestione_one_count}")
         print(f"Queue Capacity: {self.queue_capacity}")
         print(f"Shares in Coda: {self.queue_shares}")
         print(f"Forward Capacity: {self.forward_capacity}")
@@ -70,9 +77,9 @@ class TrafficManagementEnv(gym.Env):
         #3. CALCOLO I PESI PER IL SISTEMA DI RICOMPENSA E LA REWARD
         self.QUEUE_factor = self.queue_capacity / self.max_queue_capacity
         self.FORWARD_factor = self.forward_capacity / self.max_forward_capacity
-        self.forward_exceed = self.forwarded - self.forward_capacity
+        self.forward_exceed = max(0, self.forwarded - self.forward_capacity) # limito il valore a 0 come minimo, perchè se inoltro meno richieste di quelle che gli altri nodi possono accogliere, vuol dire che non ho ecceduto
         reward = calculate_reward1(self.local, self.forwarded, self.rejected, 
-                                   self.QUEUE_factor, self.FORWARD_factor, self.congestione)
+                                   self.QUEUE_factor, self.FORWARD_factor, self.cong1, self.cong2, self.forward_exceed)
         print(f"REWARD: {reward}")
         
         #4. COSTRUISCO LE LISTE DI CPU_workload E queue_workload
@@ -88,11 +95,8 @@ class TrafficManagementEnv(gym.Env):
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
         scenario = "scenario3"
-        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.congestione, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
-                                                                                                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.congestione,
+        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
+                                                                                                                                                                                                                                        self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
-        print(f"Steps non in congestione: {self.congestione_zero_count}")
-        print(f"Steps in congestione: {self.congestione_one_count}")
-        #self.input_requests = self.calculate_requests()
-        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.congestione], dtype=np.float32)
+        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
         return state, reward, done

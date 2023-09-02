@@ -106,7 +106,7 @@ class NeatLightningModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         # Qui viene eseguito il training loop principale
-        winner = self.pop.run(eval_genomes, 10)
+        winner = self.pop.run(eval_genomes, 50)
         loss = torch.tensor([-winner.fitness], requires_grad=True)
         return {'loss': loss} 
     

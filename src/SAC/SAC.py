@@ -46,7 +46,7 @@ class Critic(nn.Module):
 
 # SAC AGENT
 class SAC:
-    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.9, tau=0.005, 
+    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.95, tau=0.005, 
                  target_entropy = None):
         self.device = device
         self.actor = Actor(state_dim, action_dim).to(device)
@@ -65,8 +65,6 @@ class SAC:
         self.target_entropy = target_entropy
 
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr, weight_decay=1e-3)
-        self.critic_1_optimizer = optim.Adam(self.critic_1.parameters(), lr=lr, weight_decay=1e-3)
-        self.critic_2_optimizer = optim.Adam(self.critic_2.parameters(), lr=lr, weight_decay=1e-3)
         self.critic_optimizer = optim.Adam(list(self.critic_1.parameters()) + list(self.critic_2.parameters()), lr=lr, weight_decay=1e-3)
 
         self.gamma = gamma

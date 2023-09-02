@@ -27,18 +27,18 @@ def process_actions(action, input_requests):
     return local, forwarded, rejected
 
 # REWARD FUNCTION
-def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, congestione):
+def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, cong1, cong2, forward_exceed):
     
-    if congestione == 0:
+    if cong1 == 0 and cong2 == 0:
         reward_local = 3 * local * QUEUE_factor
         reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
         reward_rejected = -10 * rejected * FORWARD_factor * QUEUE_factor
-        reward = reward_local + reward_forwarded + reward_rejected
+        reward = reward_local + reward_forwarded + reward_rejected - 2 * forward_exceed
     else:
         reward_local = -10 * local
-        reward_forwarded = 2 * forwarded * FORWARD_factor
+        reward_forwarded = -2 * forwarded * FORWARD_factor
         reward_rejected = 2 * rejected * (1 - FORWARD_factor)
-        reward = reward_local + reward_forwarded + reward_rejected - 500
+        reward = reward_local + reward_forwarded + reward_rejected - 500 - 2 * forward_exceed
 
     return reward
 
