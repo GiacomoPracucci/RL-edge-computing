@@ -2,7 +2,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 import math
-from env.env_functions import process_actions, calculate_reward1
+from env.env_functions import process_actions, calculate_reward1, calculate_reward2, calculate_reward3
 from env.workload_management import workload
 
 # ENV CLASS

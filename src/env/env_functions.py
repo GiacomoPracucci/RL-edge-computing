@@ -42,5 +42,25 @@ def calculate_reward1(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, 
 
     return reward
 
+# REWARD FUNCTION
+def calculate_reward2(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, cong1, cong2, forward_exceed):
+    
+    reward_local = 3 * local * QUEUE_factor
+    reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
+    reward_rejected = -10 * rejected * FORWARD_factor * QUEUE_factor
+    reward = reward_local + reward_forwarded + reward_rejected - 2 * forward_exceed - 500 * (cong1) - 500 * (cong2)
+
+    return reward
+
+# REWARD FUNCTION
+def calculate_reward3(local, forwarded, rejected, QUEUE_factor, FORWARD_factor, cong1, cong2, forward_exceed):
+    
+    reward_local = 3 * local * QUEUE_factor
+    reward_forwarded = 1 * forwarded * (1 - QUEUE_factor) * FORWARD_factor
+    reward_rejected = -10 * rejected * FORWARD_factor * QUEUE_factor
+    reward = reward_local + reward_forwarded + reward_rejected
+
+    return reward
+
 
 

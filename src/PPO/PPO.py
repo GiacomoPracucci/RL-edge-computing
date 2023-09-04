@@ -8,7 +8,7 @@ from torch.distributions.dirichlet import Dirichlet
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-seed = 42
+seed = 0
 torch.manual_seed(seed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
@@ -26,7 +26,7 @@ class Actor(nn.Module):
         x = torch.tanh(self.fc2(x))
         x = torch.tanh(self.fc3(x))
         x = torch.exp(self.fc4(x))
-        #x = torch.softmax(self.fc4(x), dim=-1)
+        #x = F.softplus(self.fc4(x))
         return x
 
 # CRITIC NETWORK
@@ -46,7 +46,7 @@ class Critic(nn.Module):
         return x
     
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.95, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
+    def __init__(self, state_dim, action_dim, lr=0.0001, gamma=0.95, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
         self.actor = Actor(state_dim, action_dim)
         self.critic = Critic(state_dim)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)
@@ -97,7 +97,7 @@ class PPO:
         returns = advantages + values
         return advantages, returns
 
-    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=512):
+    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=64):
         # vf_coef: how much the critic loss should be weighted in the total loss. 
         #          If 1.0, then the critic loss is weighted the same as the actor loss.
 
@@ -153,9 +153,7 @@ class PPO:
     def save_weights_PPO(self, path):
         torch.save(self.actor.state_dict(), path + '_actor.pth')
         torch.save(self.critic.state_dict(), path + '_critic.pth')
-        #torch.save(self.optimizer.state_dict(), path + '_optimizer.pth')
     
     def load_weights_PPO(self, path):
         self.actor.load_state_dict(torch.load(path + '_actor.pth'))
-        self.critic.load_state_dict(torch.load(path + '_critic.pth'))
-        #self.optimizer.load_state_dict(torch.load(path + '_optimizer.pth'))   
+        self.critic.load_state_dict(torch.load(path + '_critic.pth'))   

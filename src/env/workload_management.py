@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import random
-seed = 42
+seed = 0
 np.random.seed(seed)
 
 class workload:
@@ -132,7 +132,7 @@ class workload:
             congestione_one_count += 1
         
         t += 1
-        if t == 100:
+        if t == 500:
             done = True
         else:
             done = False

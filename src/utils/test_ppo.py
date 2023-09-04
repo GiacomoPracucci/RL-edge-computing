@@ -12,7 +12,7 @@ path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights"
 agent.load_weights_PPO(path_to_weights)
 
 env = TrafficManagementEnv()  
-num_episodes = 50
+num_episodes = 20
 all_episode_rewards = []
 all_episode_rejections = []
 all_managed_requests_per_episode = []

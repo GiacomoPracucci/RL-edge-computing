@@ -7,7 +7,7 @@ from torch.distributions.dirichlet import Dirichlet
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-seed = 42
+seed = 0
 torch.manual_seed(seed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
