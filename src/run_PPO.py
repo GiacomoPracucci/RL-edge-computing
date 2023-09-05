@@ -11,7 +11,7 @@ if __name__ == "__main__":
     ppo_agent = PPO(state_dim, action_dim)
     
     # Carica i pesi da un checkpoint se desiderato
-    #checkpoint_episode = 500  # Ad esempio, se si desidera caricare il checkpoint dopo 500 episodi
+    #checkpoint_episode = 200  # Ad esempio, se si desidera caricare il checkpoint dopo 500 episodi
     #checkpoint_path = f"C:/Users/giaco/Desktop/local-git/PPO_weights/checkpoint_{checkpoint_episode}"
     #ppo_agent.load_weights_PPO(checkpoint_path)
 

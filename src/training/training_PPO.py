@@ -9,7 +9,7 @@ sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from torch.distributions.dirichlet import Dirichlet
 from torch.utils.tensorboard import SummaryWriter
 
-def train_ppo_agent(env, agent, horizon=2048, epochs=10, num_episodes=200, max_steps_per_episode=500):
+def train_ppo_agent(env, agent, horizon=2048, epochs=10, num_episodes=1000, max_steps_per_episode=500):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/PPO/' + current_time
     writer = SummaryWriter(train_log_dir)

@@ -20,6 +20,7 @@ class Actor(nn.Module):
         self.fc2 = nn.Linear(128, 128)
         self.fc3 = nn.Linear(128, 128)
         self.fc4 = nn.Linear(128, action_dim)
+        self.fc4.bias.data.fill_(1.5)
 
     def forward(self, state):
         x = torch.tanh(self.fc1(state))
@@ -28,6 +29,12 @@ class Actor(nn.Module):
         x = torch.exp(self.fc4(x))
         #x = F.softplus(self.fc4(x))
         return x
+    
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                torch.nn.init.normal_(m.weight, mean=0, std=0.01)
+                m.bias.data.fill_(0.01)
 
 # CRITIC NETWORK
 class Critic(nn.Module):
@@ -48,6 +55,7 @@ class Critic(nn.Module):
 class PPO:
     def __init__(self, state_dim, action_dim, lr=0.0001, gamma=0.95, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
         self.actor = Actor(state_dim, action_dim)
+        #self.actor.init_weights() # initialize weights
         self.critic = Critic(state_dim)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,7 +70,7 @@ class PPO:
         self.critic.to(self.device)
 
     def select_action(self, state):
-        state = torch.FloatTensor(state).to(self.device)
+        state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         action_probs = self.actor(state)
         dist = Dirichlet(action_probs)
         action = dist.rsample().squeeze(0).detach().cpu().numpy()
@@ -103,11 +111,10 @@ class PPO:
 
         states = torch.FloatTensor(np.array(states)).to(self.device)
         actions = torch.FloatTensor(np.array(actions)).to(self.device)
-        old_probs = torch.FloatTensor(np.array(old_probs)).to(self.device)
-
-        rewards = torch.FloatTensor(np.array(rewards)).to(self.device)
-        masks = torch.FloatTensor(np.array(masks)).to(self.device)
-        values = torch.FloatTensor(np.array(values)).to(self.device)
+        old_probs = torch.FloatTensor(np.array(old_probs)).unsqueeze(-1).to(self.device)  
+        rewards = torch.FloatTensor(np.array(rewards)).unsqueeze(-1).to(self.device)  
+        masks = torch.FloatTensor(np.array(masks)).unsqueeze(-1).to(self.device)  
+        values = torch.FloatTensor(np.array(values)).unsqueeze(-1).to(self.device)
 
         advantages, returns = self.compute_gae(rewards, masks, values)
         advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-10)
@@ -123,11 +130,11 @@ class PPO:
 
                 action_probs = self.actor(mini_batch_states)
                 dist_current = Dirichlet(action_probs)
-                new_probs = dist_current.log_prob(mini_batch_actions)
-                new_values = self.critic(mini_batch_states).squeeze(1)
+                new_probs = dist_current.log_prob(mini_batch_actions).unsqueeze(-1)
+                new_values = self.critic(mini_batch_states)
                 
-                log_ratio = new_probs - mini_batch_old_probs
-                ratio = log_ratio.exp()
+                log_ratio = (new_probs - mini_batch_old_probs)
+                ratio = log_ratio.exp().unsqueeze(-1)
 
                 pg_loss1 = mini_batch_advantages * ratio
                 pg_loss2 = mini_batch_advantages * torch.clamp(ratio, 1.0 - self.clip_epsilon, 1.0 + self.clip_epsilon)
