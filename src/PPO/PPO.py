@@ -8,7 +8,7 @@ from torch.distributions.dirichlet import Dirichlet
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-seed = 0
+seed = 4
 torch.manual_seed(seed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
@@ -20,21 +20,14 @@ class Actor(nn.Module):
         self.fc2 = nn.Linear(128, 128)
         self.fc3 = nn.Linear(128, 128)
         self.fc4 = nn.Linear(128, action_dim)
-        self.fc4.bias.data.fill_(1.5)
 
     def forward(self, state):
         x = torch.tanh(self.fc1(state))
         x = torch.tanh(self.fc2(x))
         x = torch.tanh(self.fc3(x))
         x = torch.exp(self.fc4(x))
-        #x = F.softplus(self.fc4(x))
+        #x = torch.softmax(self.fc4(x), dim=-1)
         return x
-    
-    def init_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                torch.nn.init.normal_(m.weight, mean=0, std=0.01)
-                m.bias.data.fill_(0.01)
 
 # CRITIC NETWORK
 class Critic(nn.Module):
@@ -53,9 +46,8 @@ class Critic(nn.Module):
         return x
     
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=0.0001, gamma=0.95, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
+    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.9, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
         self.actor = Actor(state_dim, action_dim)
-        #self.actor.init_weights() # initialize weights
         self.critic = Critic(state_dim)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,7 +62,7 @@ class PPO:
         self.critic.to(self.device)
 
     def select_action(self, state):
-        state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+        state = torch.FloatTensor(state).to(self.device)
         action_probs = self.actor(state)
         dist = Dirichlet(action_probs)
         action = dist.rsample().squeeze(0).detach().cpu().numpy()
@@ -105,16 +97,17 @@ class PPO:
         returns = advantages + values
         return advantages, returns
 
-    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=64):
+    def update(self, states, actions, old_probs, rewards, masks, values, vf_coef=0.5, epochs=10, batch_size=512):
         # vf_coef: how much the critic loss should be weighted in the total loss. 
         #          If 1.0, then the critic loss is weighted the same as the actor loss.
 
         states = torch.FloatTensor(np.array(states)).to(self.device)
         actions = torch.FloatTensor(np.array(actions)).to(self.device)
-        old_probs = torch.FloatTensor(np.array(old_probs)).unsqueeze(-1).to(self.device)  
-        rewards = torch.FloatTensor(np.array(rewards)).unsqueeze(-1).to(self.device)  
-        masks = torch.FloatTensor(np.array(masks)).unsqueeze(-1).to(self.device)  
-        values = torch.FloatTensor(np.array(values)).unsqueeze(-1).to(self.device)
+        old_probs = torch.FloatTensor(np.array(old_probs)).to(self.device)
+
+        rewards = torch.FloatTensor(np.array(rewards)).to(self.device)
+        masks = torch.FloatTensor(np.array(masks)).to(self.device)
+        values = torch.FloatTensor(np.array(values)).to(self.device)
 
         advantages, returns = self.compute_gae(rewards, masks, values)
         advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-10)
@@ -130,11 +123,11 @@ class PPO:
 
                 action_probs = self.actor(mini_batch_states)
                 dist_current = Dirichlet(action_probs)
-                new_probs = dist_current.log_prob(mini_batch_actions).unsqueeze(-1)
-                new_values = self.critic(mini_batch_states)
+                new_probs = dist_current.log_prob(mini_batch_actions)
+                new_values = self.critic(mini_batch_states).squeeze(1)
                 
-                log_ratio = (new_probs - mini_batch_old_probs)
-                ratio = log_ratio.exp().unsqueeze(-1)
+                log_ratio = new_probs - mini_batch_old_probs
+                ratio = log_ratio.exp()
 
                 pg_loss1 = mini_batch_advantages * ratio
                 pg_loss2 = mini_batch_advantages * torch.clamp(ratio, 1.0 - self.clip_epsilon, 1.0 + self.clip_epsilon)
@@ -160,7 +153,9 @@ class PPO:
     def save_weights_PPO(self, path):
         torch.save(self.actor.state_dict(), path + '_actor.pth')
         torch.save(self.critic.state_dict(), path + '_critic.pth')
+        #torch.save(self.optimizer.state_dict(), path + '_optimizer.pth')
     
     def load_weights_PPO(self, path):
         self.actor.load_state_dict(torch.load(path + '_actor.pth'))
-        self.critic.load_state_dict(torch.load(path + '_critic.pth'))   
+        self.critic.load_state_dict(torch.load(path + '_critic.pth'))
+        #self.optimizer.load_state_dict(torch.load(path + '_optimizer.pth'))   

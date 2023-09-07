@@ -3,6 +3,7 @@ sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from env.env import TrafficManagementEnv
 from PPO.PPO import PPO
 import matplotlib.pyplot as plt
+import csv
 
 state_dim = 5  
 action_dim = 3 
@@ -12,7 +13,7 @@ path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights"
 agent.load_weights_PPO(path_to_weights)
 
 env = TrafficManagementEnv()  
-num_episodes = 20
+num_episodes = 50
 all_episode_rewards = []
 all_episode_rejections = []
 all_managed_requests_per_episode = []
@@ -46,8 +47,18 @@ for episode in range(num_episodes):
 # Calcola la percentuale di richieste rifiutate per ogni episodio
 rejection_percentages = [(rejections/requests) * 100 if requests != 0 else 0 for rejections, requests in zip(all_episode_rejections, all_managed_requests_per_episode)]
 
+# Salvataggio delle informazioni in un file CSV
+path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/PPO/Scenario 2/seed 4/results.csv"
+with open(path_to_save_csv, 'w', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    # Scrivi l'intestazione del CSV
+    csv_writer.writerow(["Episodio", "Ricompensa Totale", "Richieste Rifiutate", "Richieste Gestite", "Steps in Congestione", "Percentuale di Richieste Rifiutate"])
+    # Scrivi i dati per ogni episodio
+    for i in range(num_episodes):
+        csv_writer.writerow([i + 1, all_episode_rewards[i], all_episode_rejections[i], all_managed_requests_per_episode[i], congestione_counts_per_episode[i], rejection_percentages[i]])
+
 # Plotting
-plt.figure(figsize=(24,5))
+plt.figure(figsize=(30,5))
 
 # subplot per la ricompensa
 plt.subplot(1, 4, 1)
