@@ -10,7 +10,7 @@ register(
 from sheeprl.utils.env import make_env
 
 def create_custom_env(id, render_mode):
-    env = gym.make('TrafficManagement-v2', render_mode="rgb_array")
+    env = gym.make('TrafficManagement-v0', render_mode="rgb_array")
     wrapped_env = TrafficManagementEnv(env)
     return wrapped_env
 
