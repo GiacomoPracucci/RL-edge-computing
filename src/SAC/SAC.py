@@ -22,10 +22,10 @@ class Actor(nn.Module):
         self.fc4 = nn.Linear(128, action_dim)
 
     def forward(self, state):
-        x = torch.relu(self.fc1(state))
-        x = torch.relu(self.fc2(x))
-        x = torch.relu(self.fc3(x))
-        x = torch.sigmoid(self.fc4(x))
+        x = torch.tanh(self.fc1(state))
+        x = torch.tanh(self.fc2(x))
+        x = torch.tanh(self.fc3(x))
+        x = torch.exp(self.fc4(x))
         return x
 
 # CRITIC NETWORK
@@ -46,7 +46,7 @@ class Critic(nn.Module):
 
 # SAC AGENT
 class SAC:
-    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.9, tau=0.005, 
+    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.99, tau=0.005, 
                  target_entropy = None):
         self.device = device
         self.actor = Actor(state_dim, action_dim).to(device)
