@@ -20,6 +20,7 @@ class TrafficManagementEnv(gym.Env):
         self.max_forward_capacity = forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
         self.forward_exceed = forward_exceed
+        self._render_mode: str = "rgb_array"
 
         self.cong1 = cong1
         self.cong2 = cong2
@@ -54,6 +55,10 @@ class TrafficManagementEnv(gym.Env):
         self.cong2 = 0
 
         return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+    
+    @property
+    def render_mode(self) -> str:
+        return self._render_mode
     
     def step(self, action):
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA

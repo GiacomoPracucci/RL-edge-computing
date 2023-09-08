@@ -26,7 +26,6 @@ class Actor(nn.Module):
         x = torch.tanh(self.fc2(x))
         x = torch.tanh(self.fc3(x))
         x = torch.exp(self.fc4(x))
-        #x = torch.softmax(self.fc4(x), dim=-1)
         return x
 
 # CRITIC NETWORK

@@ -25,7 +25,7 @@ class Actor(nn.Module):
         x = torch.tanh(self.fc1(state))
         x = torch.tanh(self.fc2(x))
         x = torch.tanh(self.fc3(x))
-        x = torch.exp(self.fc4(x))
+        x = torch.sigmoid(self.fc4(x))
         return x
 
 # CRITIC NETWORK
@@ -38,15 +38,15 @@ class Critic(nn.Module):
         self.fc4 = nn.Linear(128, 1)
 
     def forward(self, state, action):
-        x = torch.tanh(self.fc1(torch.cat([state, action], dim=-1)))
-        x = torch.tanh(self.fc2(x))
-        x = torch.tanh(self.fc3(x))
+        x = torch.relu(self.fc1(torch.cat([state, action], dim=-1)))
+        x = torch.relu(self.fc2(x))
+        x = torch.relu(self.fc3(x))
         x = self.fc4(x)
         return x
 
 # SAC AGENT
 class SAC:
-    def __init__(self, state_dim, action_dim, device, lr=3e-4, gamma=0.99, tau=0.005, 
+    def __init__(self, state_dim, action_dim, device, lr=0.001, gamma=0.99, tau=0.005, 
                  target_entropy = None):
         self.device = device
         self.actor = Actor(state_dim, action_dim).to(device)
@@ -64,8 +64,8 @@ class SAC:
             target_entropy = -action_dim
         self.target_entropy = target_entropy
 
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr, weight_decay=1e-3)
-        self.critic_optimizer = optim.Adam(list(self.critic_1.parameters()) + list(self.critic_2.parameters()), lr=lr, weight_decay=1e-3)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
+        self.critic_optimizer = optim.Adam(list(self.critic_1.parameters()) + list(self.critic_2.parameters()), lr=lr)
 
         self.gamma = gamma
         self.tau = tau
