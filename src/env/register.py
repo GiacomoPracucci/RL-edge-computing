@@ -15,4 +15,3 @@ def create_custom_env(id, render_mode):
     return wrapped_env
 
 make_env("TrafficManagement-v0", create_custom_env, idx=0, capture_video=False)
-)
