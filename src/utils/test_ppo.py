@@ -48,7 +48,7 @@ for episode in range(num_episodes):
 rejection_percentages = [(rejections/requests) * 100 if requests != 0 else 0 for rejections, requests in zip(all_episode_rejections, all_managed_requests_per_episode)]
 
 # Salvataggio delle informazioni in un file CSV
-path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/TUNED/PPO/Scenario 1/seed 3/results.csv"
+path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/TUNED/PPO/Scenario 2/seed 0/results.csv"
 with open(path_to_save_csv, 'w', newline='') as csvfile:
     csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     # Scrivi l'intestazione del CSV

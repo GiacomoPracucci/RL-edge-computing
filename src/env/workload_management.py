@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import random
-seed = 3
+seed = 1
 np.random.seed(seed)
 
 class workload:

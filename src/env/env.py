@@ -95,7 +95,7 @@ class TrafficManagementEnv(gym.Env):
         #5. AGGIORNO LO SPAZIO DELLE OSSERVAZIONI
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
-        scenario = "scenario3"
+        scenario = "scenario2"
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
