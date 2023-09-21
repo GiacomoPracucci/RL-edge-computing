@@ -35,9 +35,9 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=1000, max_
         episode_entropy_losses = []
 
         for step in range(max_steps_per_episode):
-            print("---------------------------------")
-            print(f"Episode: {episode}, Step: {step}")
-            print("---------------------------------")
+            #print("---------------------------------")
+            #print(f"Episode: {episode}, Step: {step}")
+            #print("---------------------------------")
 
             action = agent.select_action(state)
             value = agent.critic(torch.FloatTensor(state).unsqueeze(0).to(agent.device)).item()
@@ -70,7 +70,6 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=1000, max_
             if (episode + 1) % 50 == 0:  # Salva un checkpoint ogni 500 episodi
                 checkpoint_path = f"C:/Users/giaco/Desktop/local-git/PPO_weights/checkpoint_{episode + 1}"
                 agent.save_weights_PPO(checkpoint_path)
-        
             
             if done:
                 break
@@ -93,37 +92,39 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=1000, max_
         total_critic_losses.append(avg_critic_loss)
         total_entropy_losses.append(avg_entropy_loss)
 
-        print(f"Episode: {episode + 1}, Reward: {episode_reward}, Actor Loss: {avg_actor_loss}, Critic Loss: {avg_critic_loss}")
+        #print(f"Episode: {episode + 1}, Reward: {episode_reward}, Actor Loss: {avg_actor_loss}, Critic Loss: {avg_critic_loss}")
 
     writer.close() 
     agent.save_weights_PPO("C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights")
     
     # Plot total rewards
-    plt.figure(figsize=(12, 8))
+    #plt.figure(figsize=(12, 8))
     
-    plt.subplot(2, 2, 1)
-    plt.plot(total_rewards)
-    plt.xlabel('Episode')
-    plt.ylabel('Reward')
-    plt.title('Total Rewards')
+    #plt.subplot(2, 2, 1)
+    #plt.plot(total_rewards)
+    #plt.xlabel('Episode')
+    #plt.ylabel('Reward')
+    #plt.title('Total Rewards')
     
-    plt.subplot(2, 2, 2)
-    plt.plot(total_actor_losses)
-    plt.xlabel('Episode')
-    plt.ylabel('Actor Loss')
-    plt.title('Actor Losses')
+    #plt.subplot(2, 2, 2)
+    #plt.plot(total_actor_losses)
+    #plt.xlabel('Episode')
+    #plt.ylabel('Actor Loss')
+    #plt.title('Actor Losses')
     
-    plt.subplot(2, 2, 3)
-    plt.plot(total_critic_losses)
-    plt.xlabel('Episode')
-    plt.ylabel('Critic Loss')
-    plt.title('Critic Losses')
+    #plt.subplot(2, 2, 3)
+    #plt.plot(total_critic_losses)
+    #plt.xlabel('Episode')
+    #plt.ylabel('Critic Loss')
+    #plt.title('Critic Losses')
     
-    plt.subplot(2, 2, 4)
-    plt.plot(total_entropy_losses)
-    plt.xlabel('Episode')
-    plt.ylabel('Entropy Loss')
-    plt.title('Entropy Losses')
+    #plt.subplot(2, 2, 4)
+    #plt.plot(total_entropy_losses)
+    #plt.xlabel('Episode')
+    #plt.ylabel('Entropy Loss')
+    #plt.title('Entropy Losses')
 
-    plt.tight_layout()
-    plt.show()
+    #plt.tight_layout()
+    #plt.show()
+    
+    return total_rewards

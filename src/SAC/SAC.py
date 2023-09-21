@@ -1,59 +1,66 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions.dirichlet import Dirichlet
 
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-seed = 0
+seed = 1
 torch.manual_seed(seed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 
-# ACTOR NETWORK
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim):
+    def __init__(self, state_dim, action_dim, num_units=206):
         super(Actor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, action_dim)
+        self.fc1 = nn.Linear(state_dim, num_units)
+        self.ln1 = nn.LayerNorm(num_units)
+        self.fc2 = nn.Linear(num_units, num_units)
+        self.ln2 = nn.LayerNorm(num_units)
+        self.fc3 = nn.Linear(num_units, num_units)
+        self.ln3 = nn.LayerNorm(num_units)
+        self.fc4 = nn.Linear(num_units, action_dim)
 
     def forward(self, state):
-        x = torch.tanh(self.fc1(state))
-        x = torch.tanh(self.fc2(x))
-        x = torch.tanh(self.fc3(x))
-        x = torch.sigmoid(self.fc4(x))
+        x = torch.relu(self.ln1(self.fc1(state)))
+        x = torch.relu(self.ln2(self.fc2(x)))
+        x = torch.relu(self.ln3(self.fc3(x)))
+        #x = torch.sigmoid(self.fc4(x))
+        x = F.softplus(self.fc4(x))
         return x
 
 # CRITIC NETWORK
 class Critic(nn.Module):
-    def __init__(self, state_dim, action_dim):
+    def __init__(self, state_dim, action_dim, num_units=206):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim + action_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, 1)
+        self.fc1 = nn.Linear(state_dim + action_dim, num_units)
+        self.ln1 = nn.LayerNorm(num_units)
+        self.fc2 = nn.Linear(num_units, num_units)
+        self.ln2 = nn.LayerNorm(num_units)
+        self.fc3 = nn.Linear(num_units, num_units)
+        self.ln3 = nn.LayerNorm(num_units)
+        self.fc4 = nn.Linear(num_units, 1)
 
     def forward(self, state, action):
-        x = torch.relu(self.fc1(torch.cat([state, action], dim=-1)))
-        x = torch.relu(self.fc2(x))
-        x = torch.relu(self.fc3(x))
+        x = torch.relu(self.ln1(self.fc1(torch.cat([state, action], dim=-1))))
+        x = torch.relu(self.ln2(self.fc2(x)))
+        x = torch.relu(self.ln3(self.fc3(x)))
         x = self.fc4(x)
         return x
 
 # SAC AGENT
 class SAC:
-    def __init__(self, state_dim, action_dim, device, lr=0.001, gamma=0.99, tau=0.005, 
+    def __init__(self, state_dim, action_dim, device, lr=0.0081, gamma=0.902, tau=0.00272, num_units=206,
                  target_entropy = None):
         self.device = device
-        self.actor = Actor(state_dim, action_dim).to(device)
-        self.critic_1 = Critic(state_dim, action_dim).to(device)
-        self.critic_2 = Critic(state_dim, action_dim).to(device)
-        self.target_critic_1 = Critic(state_dim, action_dim).to(device)
-        self.target_critic_2 = Critic(state_dim, action_dim).to(device)
+        self.actor = Actor(state_dim, action_dim, num_units=num_units).to(device)
+        self.critic_1 = Critic(state_dim, action_dim, num_units=num_units).to(device)
+        self.critic_2 = Critic(state_dim, action_dim, num_units=num_units).to(device)
+        self.target_critic_1 = Critic(state_dim, action_dim, num_units=num_units).to(device)
+        self.target_critic_2 = Critic(state_dim, action_dim, num_units=num_units).to(device)
         self.soft_update(tau=1) 
 
         self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
@@ -74,9 +81,9 @@ class SAC:
         if tau is None:
             tau = self.tau
         for t_param, param in zip(self.target_critic_1.parameters(), self.critic_1.parameters()):
-            t_param.data.copy_((1 - tau) * t_param + tau * param)
+            t_param.data.copy_(tau * param + (1 - tau) * t_param)
         for t_param, param in zip(self.target_critic_2.parameters(), self.critic_2.parameters()):
-            t_param.data.copy_((1 - tau) * t_param + tau * param)
+            t_param.data.copy_(tau * param + (1 - tau) * t_param)
 
     def train(self, replay_buffer, batch_size):
         state, action, reward, next_state, done = replay_buffer.sample(batch_size)

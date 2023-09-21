@@ -20,7 +20,6 @@ class TrafficManagementEnv(gym.Env):
         self.max_forward_capacity = forward_capacity
         self.forward_capacity_t = self.max_forward_capacity
         self.forward_exceed = forward_exceed
-        self._render_mode: str = "rgb_array"
 
         self.cong1 = cong1
         self.cong2 = cong2
@@ -62,19 +61,19 @@ class TrafficManagementEnv(gym.Env):
     
     def step(self, action):
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA
-        print(f"Stato del Sistema 1: {self.cong1}")
-        print(f"Stato del Sistema 2: {self.cong2}")
-        print(f"Queue Capacity: {self.queue_capacity}")
-        print(f"Shares in Coda: {self.queue_shares}")
-        print(f"Forward Capacity: {self.forward_capacity}")
-        print(f"INPUT: {self.input_requests}")
+        #print(f"Stato del Sistema 1: {self.cong1}")
+        #print(f"Stato del Sistema 2: {self.cong2}")
+        #print(f"Queue Capacity: {self.queue_capacity}")
+        #print(f"Shares in Coda: {self.queue_shares}")
+        #print(f"Forward Capacity: {self.forward_capacity}")
+        #print(f"INPUT: {self.input_requests}")
 
         #2. ESTRAGGO, SALVO E VISUALIZZO IL NUMERO DI RICHIESTE ELABORATE LOCALMENTE, INOLTRATE E RIFIUTATE
         self.local, self.forwarded, self.rejected = process_actions(action, self.input_requests)
         self.total_managed_requests += self.local + self.forwarded + self.rejected
-        print(f"LOCAL: {self.local}")
-        print(f"FORWARDED: {self.forwarded}")
-        print(f"REJECTED: {self.rejected}")
+        #print(f"LOCAL: {self.local}")
+        #print(f"FORWARDED: {self.forwarded}")
+        #print(f"REJECTED: {self.rejected}")
 
         #3. CALCOLO I PESI PER IL SISTEMA DI RICOMPENSA E LA REWARD
         self.QUEUE_factor = self.queue_capacity / self.max_queue_capacity
@@ -82,7 +81,7 @@ class TrafficManagementEnv(gym.Env):
         self.forward_exceed = max(0, self.forwarded - self.forward_capacity) # limito il valore a 0 come minimo, perchè se inoltro meno richieste di quelle che gli altri nodi possono accogliere, vuol dire che non ho ecceduto
         reward = calculate_reward1(self.local, self.forwarded, self.rejected, 
                                    self.QUEUE_factor, self.FORWARD_factor, self.cong1, self.cong2, self.forward_exceed)
-        print(f"REWARD: {reward}")
+        #print(f"REWARD: {reward}")
         
         #4. COSTRUISCO LE LISTE DI CPU_workload E queue_workload
         # Viene fatto il campionamento delle richieste elaborate in CPU e quelle messe in coda (Classe, shares, dfaas_mb, position)
@@ -100,8 +99,8 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
-        print(f"Steps non in congestione: {self.congestione_zero_count}")
-        print(f"Steps in congestione: {self.congestione_one_count}")
+        #print(f"Steps non in congestione: {self.congestione_zero_count}")
+        #print(f"Steps in congestione: {self.congestione_one_count}")
         #self.input_requests = self.calculate_requests()
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
         return state, reward, done

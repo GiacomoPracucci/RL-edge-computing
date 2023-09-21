@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import random
-seed = 4
+seed = 3
 np.random.seed(seed)
 
 class workload:
@@ -97,9 +97,9 @@ class workload:
                 else:
                     requests_rejected += 1
         
-        print(f"Requests in coda: {len(queue_workload)}")
-        print(f"Shares in coda: {sum(request['shares'] for request in queue_workload)}")
-        print(f"MB in coda: {sum(request['dfaas_mb'] for request in queue_workload)}")
+        #print(f"Requests in coda: {len(queue_workload)}")
+        #print(f"Shares in coda: {sum(request['shares'] for request in queue_workload)}")
+        #print(f"MB in coda: {sum(request['dfaas_mb'] for request in queue_workload)}")
 
         return CPU_workload, queue_workload, requests_rejected
 

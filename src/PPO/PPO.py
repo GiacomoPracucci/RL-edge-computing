@@ -8,18 +8,18 @@ from torch.distributions.dirichlet import Dirichlet
 print(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-seed = 4
+seed = 3
 torch.manual_seed(seed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim):
+    def __init__(self, state_dim, action_dim, num_units=167):
         super(Actor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, action_dim)
+        self.fc1 = nn.Linear(state_dim, num_units)
+        self.fc2 = nn.Linear(num_units, num_units)
+        self.fc3 = nn.Linear(num_units, num_units)
+        self.fc4 = nn.Linear(num_units, action_dim)
 
     def forward(self, state):
         x = torch.tanh(self.fc1(state))
@@ -30,12 +30,12 @@ class Actor(nn.Module):
 
 # CRITIC NETWORK
 class Critic(nn.Module):
-    def __init__(self, state_dim):
+    def __init__(self, state_dim, num_units=167):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, 1)
+        self.fc1 = nn.Linear(state_dim, num_units)
+        self.fc2 = nn.Linear(num_units, num_units)
+        self.fc3 = nn.Linear(num_units, num_units)
+        self.fc4 = nn.Linear(num_units, 1)
 
     def forward(self, state):
         x = torch.tanh(self.fc1(state))
@@ -45,9 +45,9 @@ class Critic(nn.Module):
         return x
     
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.99, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0):
-        self.actor = Actor(state_dim, action_dim)
-        self.critic = Critic(state_dim)
+    def __init__(self, state_dim, action_dim, lr=0.0007, gamma=0.91, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0, num_units=167):
+        self.actor = Actor(state_dim, action_dim, num_units)
+        self.critic = Critic(state_dim, num_units)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         

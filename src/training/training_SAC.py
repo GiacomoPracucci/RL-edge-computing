@@ -7,7 +7,7 @@ sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_buffer import ReplayBuffer
 
-def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=1000, 
+def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=500, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/SAC/' + current_time
@@ -57,6 +57,10 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
             episode_reward += reward
             steps += 1
 
+            if (episode + 1) % 50 == 0:  # Salva un checkpoint ogni 500 episodi
+                checkpoint_path = f"C:/Users/giaco/Desktop/local-git/SAC_weights/checkpoint_{episode + 1}"
+                agent.save_weights_SAC(checkpoint_path)
+            
             if done:
                 break
         
@@ -68,7 +72,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
         critic2_losses.append(episode_critic2_loss / step)
         alpha_losses.append(episode_alpha_loss / step)
 
-        print(f"Episode: {episode + 1}, Reward: {episode_reward}")
+        #print(f"Episode: {episode + 1}, Reward: {episode_reward}")
 
     writer.close() 
     agent.save_weights_SAC("C:/Users/giaco/Desktop/local-git/SAC_weights/SAC_weights")
@@ -111,3 +115,5 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.ylabel('Reward')
     plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/reward.png")
     plt.show()
+    
+    return total_rewards
