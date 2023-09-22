@@ -1,6 +1,6 @@
 import torch
 from env.env import TrafficManagementEnv
-from SAC.SAC import SAC
+from sac.SAC import SAC
 from training.training_SAC import train_sac_agent
 
 if __name__ == "__main__":

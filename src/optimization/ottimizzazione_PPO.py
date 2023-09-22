@@ -1,31 +1,30 @@
 import numpy as np
 import torch
-import torch.nn.functional as F
 import optuna
 import sys
 sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
-from SAC.SAC import SAC
-from training.training_SAC import train_sac_agent
+from ppo.PPO import PPO
+from training.training_PPO import train_ppo_agent
 from env.env import TrafficManagementEnv
 
 def objective(trial):
-
-    lr = trial.suggest_loguniform('lr', 1e-5, 1e-2)
-    gamma = trial.suggest_uniform('gamma', 0.9, 0.9999)
-    tau = trial.suggest_uniform('tau', 0.001, 0.1)
-    num_units = trial.suggest_int('num_units', 64, 256)
+    # 1. Definizione degli iperparametri
+    lr = trial.suggest_float('lr', 1e-5, 1e-2, log=True)
+    num_units = trial.suggest_int('num_units', 32, 256)
+    gamma = trial.suggest_float('gamma', 0.89, 0.999)
 
     # 2. Inizializzazione dell'agente SAC con i parametri ottimizzati
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     env = TrafficManagementEnv()
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
-    agent = SAC(state_dim, action_dim, device, lr=lr, gamma=gamma, tau=tau, num_units=num_units)
+    agent = PPO(state_dim, action_dim, lr=lr, gamma=gamma, num_units=num_units)
 
-    # 3. Addestramento e valutazione dell'agente
-    rewards = train_sac_agent(env, agent)
-    average_reward = np.mean(rewards)
     
+    # 3. Addestramento e valutazione dell'agente
+    rewards = train_ppo_agent(env, agent, num_episodes = 300)
+    average_reward = np.mean(rewards)
+
     return average_reward
 
 def print_best_trial(study, trial):

@@ -5,11 +5,10 @@ import matplotlib.pyplot as plt
 import sys
 import torch
 sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
-
 from torch.distributions.dirichlet import Dirichlet
 from torch.utils.tensorboard import SummaryWriter
 
-def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=1000, max_steps_per_episode=100):
+def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_steps_per_episode=100):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/PPO/' + current_time
     writer = SummaryWriter(train_log_dir)
@@ -36,7 +35,7 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=1000, max_
 
         for step in range(max_steps_per_episode):
             #print("---------------------------------")
-            #print(f"Episode: {episode}, Step: {step}")
+            print(f"Episode: {episode}, Step: {step}")
             #print("---------------------------------")
 
             action = agent.select_action(state)

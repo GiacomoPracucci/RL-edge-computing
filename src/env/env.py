@@ -2,7 +2,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 import math
-from env.env_functions import process_actions, calculate_reward1, calculate_reward2, calculate_reward3
+from env.env_functions import process_actions, calculate_reward1, update_obs_space
 from env.workload_management import workload
 
 # ENV CLASS
@@ -95,12 +95,11 @@ class TrafficManagementEnv(gym.Env):
         #5. AGGIORNO LO SPAZIO DELLE OSSERVAZIONI
         # Aggiorno la capacità disponibile in base al n di requests in queue_workload
         # Verifico la condizione per il done
-        scenario = "scenario2"
-        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = workload.update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
+        scenario = "scenario1"
+        self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
         #print(f"Steps non in congestione: {self.congestione_zero_count}")
         #print(f"Steps in congestione: {self.congestione_one_count}")
-        #self.input_requests = self.calculate_requests()
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
         return state, reward, done

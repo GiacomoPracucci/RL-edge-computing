@@ -1,6 +1,6 @@
 import torch
 from env.env import TrafficManagementEnv
-from PPO.PPO import PPO
+from ppo.PPO import PPO
 from training.training_PPO import train_ppo_agent
 
 if __name__ == "__main__":

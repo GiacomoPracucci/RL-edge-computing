@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from torch.utils.tensorboard import SummaryWriter
-from SAC.replay_buffer import ReplayBuffer
+from sac.replay_buffer import ReplayBuffer
 
 def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=500, 
                     max_steps_per_episode=100, warm_up=512):

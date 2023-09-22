@@ -4,8 +4,7 @@ import random
 seed = 1
 np.random.seed(seed)
 
-class workload:
-    
+class workload: 
     @staticmethod
     def sample_workload(local):
         workload = []
@@ -102,38 +101,3 @@ class workload:
         #print(f"MB in coda: {sum(request['dfaas_mb'] for request in queue_workload)}")
 
         return CPU_workload, queue_workload, requests_rejected
-
-    @staticmethod
-    def update_obs_space(scenario, average_requests, amplitude_requests, queue_workload, queue_capacity, max_queue_capacity, t,
-                     forward_capacity, forward_capacity_t, period, cong1, cong2,
-                     forward_exceed, congestione_zero_count, congestione_one_count):
-
-        #print(f"Num requests in queue: {len(queue_workload)}")
-        queue_length_requests = len(queue_workload)
-        queue_capacity = max(0, max_queue_capacity - queue_length_requests)
-        queue_shares = sum(request['shares'] for request in queue_workload)
-        queue_mb = sum(request['dfaas_mb'] for request in queue_workload)
-        
-        if scenario == "scenario1":
-            input_requests, forward_capacity = workload.scenario1(average_requests=average_requests)
-        elif scenario == "scenario2":
-            input_requests, forward_capacity = workload.scenario2(t, period, average_requests=average_requests, amplitude_requests=amplitude_requests)
-        elif scenario == "scenario3":
-            input_requests, forward_capacity = workload.scenario3(average_requests, amplitude_requests, t, period)
-
-        forward_capacity_t = forward_capacity
-        cong1 = 1 if queue_capacity == 0 else 0
-        cong2 = 1 if forward_exceed > 0 else 0
-        
-        if cong1 == 0 and cong2 == 0:
-            congestione_zero_count += 1
-        else:
-            congestione_one_count += 1
-        
-        t += 1
-        if t == 100:
-            done = True
-        else:
-            done = False
-
-        return queue_capacity, queue_shares, t, done, forward_capacity, forward_capacity_t, cong1, cong2, congestione_zero_count, congestione_one_count, input_requests
