@@ -16,10 +16,10 @@ def modify_config(config_file, config_output_file, params):
         file.writelines(config_content)
 
 def objective(trial):
-    conn_add_prob = trial.suggest_uniform('conn_add_prob', 0.2, 0.7)
-    node_add_prob = trial.suggest_uniform('node_add_prob', 0.2, 0.5)
-    weight_mutate_rate = trial.suggest_uniform('weight_mutate_rate', 0.7, 0.95)
-    survival_threshold = trial.suggest_uniform('survival_threshold', 0.2, 0.5)
+    conn_add_prob = trial.suggest_float('conn_add_prob', 0.2, 0.7)
+    node_add_prob = trial.suggest_float('node_add_prob', 0.2, 0.5)
+    weight_mutate_rate = trial.suggest_float('weight_mutate_rate', 0.7, 0.95)
+    survival_threshold = trial.suggest_float('survival_threshold', 0.2, 0.5)
 
     modify_config(
         'C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt',

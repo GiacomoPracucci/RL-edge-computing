@@ -4,8 +4,8 @@ from env.env import TrafficManagementEnv
 
 class ExtendedStatisticsReporter(neat.StatisticsReporter):
     def __init__(self):
-        super().__init__()  # chiama il costruttore della classe madre
-        self.generation = 0  # inizializza l'attributo generation
+        super().__init__()  
+        self.generation = 0  
     
     def post_evaluate(self, config, population, species, best_genome):
         super().post_evaluate(config, population, species, best_genome)
@@ -15,7 +15,6 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
             print("\n----- Statistics till Generation {} -----".format(self.generation))
             print("Mean fitness: {:.2f}".format(self.get_fitness_mean()[-1]))
             print("Max fitness: {:.2f}".format(self.get_fitness_stdev()[-1]))
-            # ... aggiungi altre statistiche se necessario
 
     def end_generation(self, config, population, species):
         super().end_generation(config, population, species)
@@ -23,7 +22,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
         # Salva grafici ogni N generazioni
         if self.generation % 10 == 0:
             self.plot_statistics()
-        self.generation += 1  # Increment the generation counter.
+        self.generation += 1  
 
     def plot_statistics(self):
         fig, ax = plt.subplots()
@@ -38,7 +37,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
     
         ax.set(xlabel='Generation', ylabel='Fitness', title='Fitness over Generations')
         ax.grid()
-        ax.legend()  # This will display the legend, differentiating Max and Mean fitness
+        ax.legend()  
         plt.savefig("C:/Users/giaco/Desktop/local-git/NEAT/neat_fitness_plot_gen{}.png".format(self.generation))
         plt.close()
 
@@ -58,7 +57,7 @@ def eval_genomes(genomes, config):
             print("Warning: Fitness is None for genome_id", genome_id)
 
 def run():
-    config_path = "C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt"
+    config_path = "C:/Users/giaco/Desktop/tesi_git/src/NEAT/config_optimized.txt"
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)
@@ -67,11 +66,10 @@ def run():
     checkpointer = neat.Checkpointer(50, None)  # salva ogni 50 generazioni
     pop.add_reporter(checkpointer)
     
-    # Utilizza l'ExtendedStatisticsReporter al posto del neat.StatisticsReporter
     stats = ExtendedStatisticsReporter()
     pop.add_reporter(stats)
     pop.add_reporter(neat.StdOutReporter(True))
 
-    winner = pop.run(eval_genomes, 50)
+    winner = pop.run(eval_genomes, 100)
 
     return winner, stats

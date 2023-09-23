@@ -13,13 +13,12 @@ def objective(trial):
     num_units = trial.suggest_int('num_units', 32, 256)
     gamma = trial.suggest_float('gamma', 0.89, 0.999)
 
-    # 2. Inizializzazione dell'agente SAC con i parametri ottimizzati
+    # 2. Inizializzazione dell'agente PPO con i parametri ottimizzati
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     env = TrafficManagementEnv()
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
     agent = PPO(state_dim, action_dim, lr=lr, gamma=gamma, num_units=num_units)
-
     
     # 3. Addestramento e valutazione dell'agente
     rewards = train_ppo_agent(env, agent, num_episodes = 300)
@@ -35,7 +34,6 @@ def print_best_trial(study, trial):
         for key, value in trial.params.items():
             print(f"{key}: {value}")
         print("\n")
-
 
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=100, callbacks=[print_best_trial])
