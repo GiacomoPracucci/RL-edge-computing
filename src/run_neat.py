@@ -1,7 +1,7 @@
 import sys
 import pickle
-from neat.neat import run
-sys.path.append('C:/Users/giaco/Desktop/tesi-git/src')
+from NEAT.neat import run
+sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 
 if __name__ == "__main__":
     winner, stats = run()

@@ -22,8 +22,8 @@ def objective(trial):
     survival_threshold = trial.suggest_float('survival_threshold', 0.2, 0.5)
 
     modify_config(
-        'C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt',
-        'C:/Users/giaco/Desktop/local-git/NEAT/modified_config/config.txt',
+        'C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt', # path to existing config file
+        'C:/Users/giaco/Desktop/local-git/NEAT/modified_config/config.txt', # path to new optimized config file
         {
             'conn_add_prob': conn_add_prob,
             'node_add_prob': node_add_prob,
