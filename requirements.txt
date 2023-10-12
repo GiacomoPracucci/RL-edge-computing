@@ -1,7 +1,7 @@
 torch==2.0.1+cu118
-gym==0.28.1
+gymnasium==0.29.1
 neat-python==0.92
-lightning==2.0.6
+optuna==3.3.0
 numpy==1.24.3
 pandas==2.0.3
 matplotlib==3.7.2
