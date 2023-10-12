@@ -1,4 +1,4 @@
-![s2s3_reward](https://github.com/GiacomoPracucci/RL-edge-computing/assets/94844087/0e768c82-e1a0-4045-a260-8601523aed19)# Reinforcement Learning for Traffic Management in an Edge Computing System 
+# Reinforcement Learning for Traffic Management in an Edge Computing System 
 
 ## Description
 The project proposes the implementation of  SAC (Soft actor-critic) and PPO (Proximal Policy Optimization) deep reinforcement learning algorithms and of the evolutionary algorithm NEAT (Neuro Evolution of Augmenting Topologies) to optimize workload management in an Edge Computing system. The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.
