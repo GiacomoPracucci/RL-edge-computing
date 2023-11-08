@@ -1,7 +1,7 @@
 import sys
-sys.path.append('C:/Users/giaco/Desktop/Tesi/Progetto/tesi_git/src')
+sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
 from env.env import TrafficManagementEnv
-from ppo.PPO import PPO
+from PPO.PPO import PPO
 import matplotlib.pyplot as plt
 import csv
 
@@ -9,11 +9,11 @@ state_dim = 5
 action_dim = 3 
 agent = PPO(state_dim, action_dim)
 
-path_to_weights = "C:/Users/giaco/Desktop/Tesi/Progetto/local-git/PPO_weights/PPO_weights" 
+path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights" 
 agent.load_weights_PPO(path_to_weights)
 
 env = TrafficManagementEnv()  
-num_episodes = 100
+num_episodes = 50
 all_episode_rewards = []
 all_episode_rejections = []
 all_managed_requests_per_episode = []
@@ -48,77 +48,53 @@ for episode in range(num_episodes):
 rejection_percentages = [(rejections/requests) * 100 if requests != 0 else 0 for rejections, requests in zip(all_episode_rejections, all_managed_requests_per_episode)]
 
 # Salvataggio delle informazioni in un file CSV
-#path_to_save_csv = "C:/Users/giaco/Desktop/Tesi/Progetto/Esperimenti/TUNED/PPO/Scenario 2/seed 0/results.csv"
-#with open(path_to_save_csv, 'w', newline='') as csvfile:
-#    csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-#    # Scrivi l'intestazione del CSV
-#    csv_writer.writerow(["Episodio", "Ricompensa Totale", "Richieste Rifiutate", "Richieste Gestite", "Steps in Congestione", "Percentuale di Richieste Rifiutate"])
-#    # Scrivi i dati per ogni episodio
-#    for i in range(num_episodes):
-#        csv_writer.writerow([i + 1, all_episode_rewards[i], all_episode_rejections[i], all_managed_requests_per_episode[i], congestione_counts_per_episode[i], rejection_percentages[i]])
+path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/TUNED/PPO/Scenario 2/seed 0/results.csv"
+with open(path_to_save_csv, 'w', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    # Scrivi l'intestazione del CSV
+    csv_writer.writerow(["Episodio", "Ricompensa Totale", "Richieste Rifiutate", "Richieste Gestite", "Steps in Congestione", "Percentuale di Richieste Rifiutate"])
+    # Scrivi i dati per ogni episodio
+    for i in range(num_episodes):
+        csv_writer.writerow([i + 1, all_episode_rewards[i], all_episode_rejections[i], all_managed_requests_per_episode[i], congestione_counts_per_episode[i], rejection_percentages[i]])
 
 # Plotting
-plt.figure(figsize=(20,5))
+plt.figure(figsize=(30,5))
 
 # subplot per la ricompensa
-plt.subplot(1, 2, 1)
+plt.subplot(1, 4, 1)
 plt.plot(all_episode_rewards, marker='o', linestyle='-')
-plt.title('Average reward per episode', fontsize = 18)
-plt.xlabel('Episodes', fontsize = 12)
-plt.ylabel('Reward', fontsize = 18)
-plt.yticks(fontsize = 14)
-# Recupera i limiti attuali dell'asse delle y
-ymin, ymax = plt.ylim()
-
-# Calcola il 20% del range dell'asse delle y
-yrange = ymax - ymin
-delta = yrange * 0.20
-
-# Imposta i nuovi limiti dell'asse delle y
-plt.ylim(ymin - delta, ymax + delta)
+plt.title('Ricompensa Totale per Episodio')
+plt.xlabel('Episodi')
+plt.ylabel('Ricompensa Totale')
 plt.grid(True)
 
-# subplot per il numero di steps in congestione per episodio
-plt.subplot(1, 2, 2)
-plt.plot(congestione_counts_per_episode, marker='o', linestyle='-', color='purple', label='Steps in Congestione')
-plt.title('Average number of steps in congestion per episode', fontsize = 18)
-plt.xlabel('Episodes', fontsize = 12)
-plt.ylabel('Steps in congestion', fontsize = 18)
-max_congestion = max(congestione_counts_per_episode) 
-plt.yticks(range(0, max_congestion + 1), fontsize = 14)
-
-plt.grid(True)
-
-plt.tight_layout()  
-plt.show()
-
-plt.figure(figsize=(20,5))
 # subplot per la percentuale di rifiuti
-plt.subplot(1, 2, 2)
+plt.subplot(1, 4, 2)
 plt.plot(rejection_percentages, marker='o', linestyle='-', color='blue')
-plt.title('Percentage of rejected requests per episode', fontsize = 18)
-plt.xlabel('Episodes')
-plt.ylabel('Percentage of rejected requests')
+plt.title('Percentuale di Richieste Rifiutate per Episodio')
+plt.xlabel('Episodi')
+plt.ylabel('Percentuale di Richieste Rifiutate')
 plt.ylim(0, 100) 
 plt.grid(True)
 
 # subplot per il numero assoluto di rifiuti e il numero totale di richieste gestite
-plt.subplot(1, 2, 1)
+plt.subplot(1, 4, 3)
 plt.plot(all_episode_rejections, marker='o', linestyle='-', color='red', label='Richieste Rifiutate')
 #plt.plot(all_managed_requests_per_episode, marker='o', linestyle='--', color='green', label='Richieste Gestite')
-plt.title('Average number of rejected requests per episode', fontsize = 18)
-plt.xlabel('Episodes', fontsize = 12)
-plt.ylabel('Number of requests', fontsize = 18)
-plt.yticks(fontsize = 14)
-plt.legend(loc='upper left')
-ymin, ymax = plt.ylim()
+plt.title('Numero di Richieste Rifiutate per Episodio')
+plt.xlabel('Episodi')
+plt.ylabel('Numero di Richieste')
+#plt.legend(loc='upper left')  
+plt.grid(True)
 
-# Calcola il 20% del range dell'asse delle y
-yrange = ymax - ymin
-delta = yrange * 0.20
-
-# Imposta i nuovi limiti dell'asse delle y
-plt.ylim(ymin - delta, ymax + delta)  
+# subplot per il numero di steps in congestione per episodio
+plt.subplot(1, 4, 4)
+plt.plot(congestione_counts_per_episode, marker='o', linestyle='-', color='purple', label='Steps in Congestione')
+plt.title('Numero di Steps in Congestione per Episodio')
+plt.xlabel('Episodi')
+plt.ylabel('Steps in Congestione')
+max_congestion = max(congestione_counts_per_episode) 
+plt.yticks(range(0, max_congestion + 1))
 plt.grid(True)
 
 plt.tight_layout()  

@@ -14,7 +14,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, num_units=128):
+    def __init__(self, state_dim, action_dim, num_units=167):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, num_units)
         self.fc2 = nn.Linear(num_units, num_units)
@@ -30,7 +30,7 @@ class Actor(nn.Module):
 
 # CRITIC NETWORK
 class Critic(nn.Module):
-    def __init__(self, state_dim, num_units=128):
+    def __init__(self, state_dim, num_units=167):
         super(Critic, self).__init__()
         self.fc1 = nn.Linear(state_dim, num_units)
         self.fc2 = nn.Linear(num_units, num_units)
@@ -45,7 +45,7 @@ class Critic(nn.Module):
         return x
     
 class PPO:
-    def __init__(self, state_dim, action_dim, lr=0.0003, gamma=0.99, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0, num_units=128):
+    def __init__(self, state_dim, action_dim, lr=0.0007, gamma=0.91, gae_lambda=0.95, clip_epsilon=0.2, ent_coef=0.01, max_grad_norm=0.0, num_units=167):
         self.actor = Actor(state_dim, action_dim, num_units)
         self.critic = Critic(state_dim, num_units)
         self.optimizer = optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=lr)
