@@ -12,7 +12,13 @@ class TrafficManagementEnv(gym.Env):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0, 0]), high = np.array([150, 100, 100, 1, 1]), dtype = np.float32)
+        self.observation_space = spaces.Dict({
+            'input_requests': spaces.Box(low=50, high=150, shape=(), dtype=np.float32),
+            'queue_capacity': spaces.Box(low=0, high=100, shape=(), dtype=np.float32),
+            'forward_capacity': spaces.Box(low=0, high=100, shape=(), dtype=np.float32),
+            'cong1': spaces.Box(low=0, high=1, shape=(), dtype=np.float32),
+            'cong2': spaces.Box(low=0, high=1, shape=(), dtype=np.float32)
+        })
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -27,6 +33,8 @@ class TrafficManagementEnv(gym.Env):
         self.congestione_one_count = 0
         self.total_managed_requests = 0
         self.total_rejected_requests = 0
+        self.total_forwarded_requests = 0
+        self.total_local_requests = 0
         
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -35,6 +43,8 @@ class TrafficManagementEnv(gym.Env):
         
         self.queue_workload = []
         self.input_requests = self.calculate_requests()
+        
+        self.reward_range = (-np.inf, np.inf)
     
     def calculate_requests(self):
         return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
@@ -50,10 +60,18 @@ class TrafficManagementEnv(gym.Env):
         self.queue_shares = 0
         self.queue_workload = []
         self.total_rejected_requests = 0
+        self.total_forwarded_requests = 0
+        self.total_local_requests = 0
         self.cong1 = 0
         self.cong2 = 0
 
-        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+        return {
+            'input_requests': self.input_requests,
+            'queue_capacity': self.queue_capacity,
+            'forward_capacity': self.forward_capacity,
+            'cong1': self.cong1,
+            'cong2': self.cong2
+        }
     
     @property
     def render_mode(self) -> str:
@@ -71,6 +89,8 @@ class TrafficManagementEnv(gym.Env):
         #2. ESTRAGGO, SALVO E VISUALIZZO IL NUMERO DI RICHIESTE ELABORATE LOCALMENTE, INOLTRATE E RIFIUTATE
         self.local, self.forwarded, self.rejected = process_actions(action, self.input_requests)
         self.total_managed_requests += self.local + self.forwarded + self.rejected
+        self.total_forwarded_requests += self.forwarded
+        self.total_local_requests += self.local
         #print(f"LOCAL: {self.local}")
         #print(f"FORWARDED: {self.forwarded}")
         #print(f"REJECTED: {self.rejected}")
@@ -101,5 +121,11 @@ class TrafficManagementEnv(gym.Env):
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
         #print(f"Steps non in congestione: {self.congestione_zero_count}")
         #print(f"Steps in congestione: {self.congestione_one_count}")
-        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+        state = {
+            'input_requests': self.input_requests,
+            'queue_capacity': self.queue_capacity,
+            'forward_capacity': self.forward_capacity,
+            'cong1': self.cong1,
+            'cong2': self.cong2
+        }
         return state, reward, done
