@@ -3,14 +3,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
 from torch.utils.tensorboard import SummaryWriter
-from sac.replay_buffer import ReplayBuffer
+from SAC.replay_buffer import ReplayBuffer
 
-def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=500, 
+def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=100, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/SAC/' + current_time
+    train_log_dir = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/' + current_time
     writer = SummaryWriter(train_log_dir)
     
     replay_buffer = ReplayBuffer(max_size=buffer_size, state_dim=env.observation_space.shape[0], 
@@ -58,7 +59,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
             steps += 1
 
             if (episode + 1) % 50 == 0:  # Salva un checkpoint ogni 500 episodi
-                checkpoint_path = f"C:/Users/giaco/Desktop/local-git/SAC_weights/checkpoint_{episode + 1}"
+                checkpoint_path = "C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/checkpoint_{episode + 1}"
                 agent.save_weights_SAC(checkpoint_path)
             
             if done:
@@ -75,11 +76,11 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
         #print(f"Episode: {episode + 1}, Reward: {episode_reward}")
 
     writer.close() 
-    agent.save_weights_SAC("C:/Users/giaco/Desktop/local-git/SAC_weights/SAC_weights")
+    agent.save_weights_SAC("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/SAC_weights")
 
     metrics = pd.DataFrame({'Reward': total_rewards, 'Actor Loss': actor_losses, 'Alpha Loss': alpha_losses,
                             'Critic 1 Loss': critic1_losses, 'Critic 2 Loss': critic2_losses})
-    metrics.to_csv('C:/Users/giaco/Desktop/local-git/metrics_SAC.csv')
+    metrics.to_csv('C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/metrics_SAC.csv')
     
     plt.figure(figsize=(12, 8))
     plt.plot(metrics['Critic 1 Loss'].rolling(10).mean(), label='Critic1 Loss')
@@ -88,7 +89,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/critic_losses.png")
+    plt.savefig("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/critic_losses.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -96,7 +97,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.title('Actor Loss')
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
-    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/actor_loss.png")
+    plt.savefig("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/actor_loss.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -105,7 +106,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.xlabel('Episodes')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/alpha_loss.png")
+    plt.savefig("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/alpha_loss.png")
     plt.show()
 
     plt.figure(figsize=(12, 8))
@@ -113,7 +114,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
     plt.title('Rewards')
     plt.xlabel('Episodes')
     plt.ylabel('Reward')
-    plt.savefig("C:/Users/giaco/Desktop/local-git/Risultati/reward.png")
+    plt.savefig("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/reward.png")
     plt.show()
     
     return total_rewards

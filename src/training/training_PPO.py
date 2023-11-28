@@ -4,13 +4,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import torch
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
 from torch.distributions.dirichlet import Dirichlet
 from torch.utils.tensorboard import SummaryWriter
 
 def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_steps_per_episode=100):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'C:/Users/giaco/Desktop/local-git/logs/PPO/' + current_time
+    train_log_dir = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/PPO/' + current_time
     writer = SummaryWriter(train_log_dir)
     
     total_rewards = []
@@ -67,7 +68,7 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_st
                 states, actions, rewards, masks, values, old_probs = [], [], [], [], [], []
 
             if (episode + 1) % 50 == 0:  # Salva un checkpoint ogni 500 episodi
-                checkpoint_path = f"C:/Users/giaco/Desktop/local-git/PPO_weights/checkpoint_{episode + 1}"
+                checkpoint_path = "C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/PPO/checkpoint_{episode + 1}"
                 agent.save_weights_PPO(checkpoint_path)
             
             if done:
@@ -94,7 +95,7 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_st
         #print(f"Episode: {episode + 1}, Reward: {episode_reward}, Actor Loss: {avg_actor_loss}, Critic Loss: {avg_critic_loss}")
 
     writer.close() 
-    agent.save_weights_PPO("C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights")
+    agent.save_weights_PPO("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/PPO/PPO_weights")
     
     # Plot total rewards
     #plt.figure(figsize=(12, 8))
