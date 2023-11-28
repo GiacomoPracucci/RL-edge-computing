@@ -36,6 +36,8 @@ class TrafficManagementEnv(gym.Env):
         
         self.queue_workload = []
         self.input_requests = self.calculate_requests()
+        
+        self.reward_range = (-np.inf, np.inf)
     
     def calculate_requests(self):
         return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
@@ -103,4 +105,17 @@ class TrafficManagementEnv(gym.Env):
         #print(f"Steps non in congestione: {self.congestione_zero_count}")
         #print(f"Steps in congestione: {self.congestione_one_count}")
         state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
-        return state, reward, done
+        truncated = False
+        terminated = done
+        info = {}
+        
+        return state, reward, truncated, terminated, info
+    
+    def render(self, mode="human", close=False):
+        pass
+
+    def close(self):
+        pass
+
+    def seed(self, seed=None):
+        pass

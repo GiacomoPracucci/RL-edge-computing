@@ -1,5 +1,6 @@
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
 from env.env import TrafficManagementEnv
 from PPO.PPO import PPO
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ state_dim = 5
 action_dim = 3 
 agent = PPO(state_dim, action_dim)
 
-path_to_weights = "C:/Users/giaco/Desktop/local-git/PPO_weights/PPO_weights" 
+path_to_weights = "C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/PPO/PPO_weights" 
 agent.load_weights_PPO(path_to_weights)
 
 env = TrafficManagementEnv()  
@@ -28,7 +29,7 @@ for episode in range(num_episodes):
     
     while not done:
         action = agent.select_action(state)
-        next_state, reward, done = env.step(action)
+        next_state, reward, truncated, done, info = env.step(action)
         episode_reward += reward
         state = next_state
         
@@ -47,6 +48,7 @@ for episode in range(num_episodes):
 # Calcola la percentuale di richieste rifiutate per ogni episodio
 rejection_percentages = [(rejections/requests) * 100 if requests != 0 else 0 for rejections, requests in zip(all_episode_rejections, all_managed_requests_per_episode)]
 
+'''
 # Salvataggio delle informazioni in un file CSV
 path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/TUNED/PPO/Scenario 2/seed 0/results.csv"
 with open(path_to_save_csv, 'w', newline='') as csvfile:
@@ -56,6 +58,7 @@ with open(path_to_save_csv, 'w', newline='') as csvfile:
     # Scrivi i dati per ogni episodio
     for i in range(num_episodes):
         csv_writer.writerow([i + 1, all_episode_rewards[i], all_episode_rejections[i], all_managed_requests_per_episode[i], congestione_counts_per_episode[i], rejection_percentages[i]])
+'''
 
 # Plotting
 plt.figure(figsize=(30,5))

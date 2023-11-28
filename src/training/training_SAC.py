@@ -8,7 +8,7 @@ sys.path.append(sys_path)
 from torch.utils.tensorboard import SummaryWriter
 from SAC.replay_buffer import ReplayBuffer
 
-def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=100, 
+def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episodes=20, 
                     max_steps_per_episode=100, warm_up=512):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/SAC/' + current_time
@@ -37,7 +37,7 @@ def train_sac_agent(env, agent, buffer_size=1000000, batch_size=256, num_episode
             print("---------------------------------")
 
             action = agent.select_action(state)
-            next_state, reward, done = env.step(action)
+            next_state, reward, truncated, done, info = env.step(action)
 
             replay_buffer.store(state, action, reward, next_state, done)
 

@@ -9,7 +9,7 @@ sys.path.append(sys_path)
 from torch.distributions.dirichlet import Dirichlet
 from torch.utils.tensorboard import SummaryWriter
 
-def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_steps_per_episode=100):
+def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=20, max_steps_per_episode=100):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/PPO/' + current_time
     writer = SummaryWriter(train_log_dir)
@@ -41,7 +41,7 @@ def train_ppo_agent(env, agent, horizon=1024, epochs=10, num_episodes=10, max_st
 
             action = agent.select_action(state)
             value = agent.critic(torch.FloatTensor(state).unsqueeze(0).to(agent.device)).item()
-            next_state, reward, done = env.step(action)
+            next_state, reward, truncated, done, info = env.step(action)
 
             action_probs = agent.actor(torch.FloatTensor(state).unsqueeze(0).to(agent.device))
             dist = Dirichlet(action_probs)
