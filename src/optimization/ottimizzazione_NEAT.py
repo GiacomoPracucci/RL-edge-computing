@@ -1,6 +1,7 @@
 import optuna
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
 from NEAT.neat import run
 
 def modify_config(config_file, config_output_file, params):
@@ -22,8 +23,8 @@ def objective(trial):
     survival_threshold = trial.suggest_float('survival_threshold', 0.2, 0.5)
 
     modify_config(
-        'C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt', # path to existing config file
-        'C:/Users/giaco/Desktop/local-git/NEAT/modified_config/config.txt', # path to new optimized config file
+        'C:/Users/giaco/Desktop/repos/RL-edge-computing/src/NEAT/config.txt', # path to existing config file
+        'C:/Users/giaco/Desktop/repos/RL-edge-computing/src/NEAT/config_optimized.txt', # path to new optimized config file
         {
             'conn_add_prob': conn_add_prob,
             'node_add_prob': node_add_prob,

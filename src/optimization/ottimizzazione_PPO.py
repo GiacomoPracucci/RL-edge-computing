@@ -2,8 +2,9 @@ import numpy as np
 import torch
 import optuna
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
-from ppo.PPO import PPO
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
+from PPO.PPO import PPO
 from training.training_PPO import train_ppo_agent
 from env.env import TrafficManagementEnv
 

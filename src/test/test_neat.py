@@ -3,14 +3,14 @@ import pickle
 import sys
 import csv
 import matplotlib.pyplot as plt
-
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
 from env.env import TrafficManagementEnv
 
-with open('C:/Users/giaco/Desktop/local-git/NEAT/winner_genome.pkl', 'rb') as f:
+with open('C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/NEAT/winner_genome.pkl', 'rb') as f:
     winner_genome = pickle.load(f)
 
-config_path = "C:/Users/giaco/Desktop/tesi_git/src/NEAT/config.txt"
+config_path = "C:/Users/giaco/Desktop/repos/RL-edge-computing/src/NEAT/config_optimized.txt"
 config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                      neat.DefaultSpeciesSet, neat.DefaultStagnation,
                      config_path)
@@ -47,7 +47,7 @@ for episode in range(num_episodes):
 
 rejection_percentages = [(rejections/requests) * 100 if requests != 0 else 0 for rejections, requests in zip(all_episode_rejections, all_managed_requests_per_episode)]
 
-path_to_save_csv = "C:/Users/giaco/Desktop/Esperimenti/NEAT/Scenario 3/seed 4/results.csv"
+path_to_save_csv = "C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/NEAT/results.csv"
 
 with open(path_to_save_csv, 'w', newline='') as csvfile:
     csv_writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)

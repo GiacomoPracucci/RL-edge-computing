@@ -18,7 +18,10 @@ def plot_grad_flow_line(named_parameters):
     plt.title("Gradient flow")
     plt.grid(True)
 
-# to make the graph insert the following line of code after 
-# the backpropagation in the SAC class
-# > plot_grad_flow_line(self.actor_optimizer.named_parameters())
-# the example is for the actor network
+'''
+to make the graph insert the following line of code after 
+the backpropagation in the SAC class
+> plot_grad_flow_line(self.actor_optimizer.named_parameters())
+the example is for the actor network
+'''
+

@@ -38,7 +38,7 @@ class ExtendedStatisticsReporter(neat.StatisticsReporter):
         ax.set(xlabel='Generation', ylabel='Fitness', title='Fitness over Generations')
         ax.grid()
         ax.legend()  
-        plt.savefig("C:/Users/giaco/Desktop/local-git/NEAT/neat_fitness_plot_gen{}.png".format(self.generation))
+        plt.savefig("C:/Users/giaco/Desktop/repos/RL-edge-computing/logs/NEAT/neat_fitness_plot_gen{}.png".format(self.generation))
         plt.close()
 
 def eval_genomes(genomes, config):
@@ -57,7 +57,7 @@ def eval_genomes(genomes, config):
             print("Warning: Fitness is None for genome_id", genome_id)
 
 def run():
-    config_path = "C:/Users/giaco/Desktop/tesi_git/src/NEAT/config_optimized.txt"
+    config_path = "C:/Users/giaco/Desktop/repos/RL-edge-computing/src/NEAT/config_optimized.txt"
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_path)

@@ -3,8 +3,9 @@ import torch
 import torch.nn.functional as F
 import optuna
 import sys
-sys.path.append('C:/Users/giaco/Desktop/tesi_git/src')
-from sac.SAC import SAC
+sys_path = 'C:/Users/giaco/Desktop/repos/RL-edge-computing/src' 
+sys.path.append(sys_path)
+from SAC.SAC import SAC
 from training.training_SAC import train_sac_agent
 from env.env import TrafficManagementEnv
 

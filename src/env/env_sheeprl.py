@@ -5,6 +5,15 @@ import math
 from env.env_functions import process_actions, calculate_reward1, update_obs_space
 from env.workload_management import workload
 
+'''
+Questa e una versione speciale dell'ambiente che rispetta le specifiche necessarie 
+per essere utilizzato come ambiente personalizzato nel framework di RL sheeprl.
+Non funziona negli algoritmi presenti nel repo perchè lo stato viene salvato come dizionario,
+formato non supportato in questo codice.
+Repo del framework: https://github.com/Eclectic-Sheep/sheeprl
+Come aggiungere l'env a sheeprl: https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/add_environment.md
+'''
+
 # ENV CLASS
 class TrafficManagementEnv(gym.Env):
     def __init__(self, CPU_capacity = 1000, queue_capacity = 100, DFAAS_capacity = 8000, forward_capacity = 100,
@@ -12,7 +21,13 @@ class TrafficManagementEnv(gym.Env):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0, 0]), high = np.array([150, 100, 100, 1, 1]), dtype = np.float32)
+        self.observation_space = spaces.Dict({
+            'input_requests': spaces.Box(low=50, high=150, shape=(1,), dtype=np.float32),
+            'queue_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
+            'forward_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
+            'cong1': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32),
+            'cong2': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
+        })
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -27,6 +42,8 @@ class TrafficManagementEnv(gym.Env):
         self.congestione_one_count = 0
         self.total_managed_requests = 0
         self.total_rejected_requests = 0
+        self.total_forwarded_requests = 0
+        self.total_local_requests = 0
         
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -41,7 +58,7 @@ class TrafficManagementEnv(gym.Env):
     def calculate_requests(self):
         return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
     
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.t = 0
         self.CPU_capacity = self.max_CPU_capacity
         self.queue_capacity = self.max_queue_capacity
@@ -52,27 +69,36 @@ class TrafficManagementEnv(gym.Env):
         self.queue_shares = 0
         self.queue_workload = []
         self.total_rejected_requests = 0
+        self.total_forwarded_requests = 0
+        self.total_local_requests = 0
         self.cong1 = 0
         self.cong2 = 0
 
-        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
-    
-    @property
-    def render_mode(self) -> str:
-        return self._render_mode
+        initial_observation = {
+            'input_requests': np.array([self.input_requests], dtype=np.float32),
+            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
+            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
+            'cong1': np.array([self.cong1], dtype=np.float32),
+            'cong2': np.array([self.cong2], dtype=np.float32)
+        }
+        return initial_observation, {}
     
     def step(self, action):
+        '''
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA
-        #print(f"Stato del Sistema 1: {self.cong1}")
-        #print(f"Stato del Sistema 2: {self.cong2}")
-        #print(f"Queue Capacity: {self.queue_capacity}")
-        #print(f"Shares in Coda: {self.queue_shares}")
-        #print(f"Forward Capacity: {self.forward_capacity}")
-        #print(f"INPUT: {self.input_requests}")
-
+        print(f"Stato del Sistema 1: {self.cong1}")
+        print(f"Stato del Sistema 2: {self.cong2}")
+        print(f"Queue Capacity: {self.queue_capacity}")
+        print(f"Shares in Coda: {self.queue_shares}")
+        print(f"Forward Capacity: {self.forward_capacity}")
+        print(f"INPUT: {self.input_requests}")
+        '''
+        
         #2. ESTRAGGO, SALVO E VISUALIZZO IL NUMERO DI RICHIESTE ELABORATE LOCALMENTE, INOLTRATE E RIFIUTATE
         self.local, self.forwarded, self.rejected = process_actions(action, self.input_requests)
         self.total_managed_requests += self.local + self.forwarded + self.rejected
+        self.total_forwarded_requests += self.forwarded
+        self.total_local_requests += self.local
         #print(f"LOCAL: {self.local}")
         #print(f"FORWARDED: {self.forwarded}")
         #print(f"REJECTED: {self.rejected}")
@@ -85,11 +111,13 @@ class TrafficManagementEnv(gym.Env):
                                    self.QUEUE_factor, self.FORWARD_factor, self.cong1, self.cong2, self.forward_exceed)
         #print(f"REWARD: {reward}")
         
-        #4. COSTRUISCO LE LISTE DI CPU_workload E queue_workload
-        # Viene fatto il campionamento delle richieste elaborate in CPU e quelle messe in coda (Classe, shares, dfaas_mb, position)
-        # Il campionamento per la classe avviene da una distrib uniforme, per gli shares e i dfaas_mb da una distrib normale
-        # Costruisco le liste che descrivono quanto ho elaborato in CPU in questo step e quanto ho messo in coda
-        # Viene data precedenza all'elaborazione delle requests in coda dallo step precedente
+        '''
+        4. COSTRUISCO LE LISTE DI CPU_workload E queue_workload
+        Viene fatto il campionamento delle richieste elaborate in CPU e quelle messe in coda (Classe, shares, dfaas_mb, position)
+        Il campionamento per la classe avviene da una distrib uniforme, per gli shares e i dfaas_mb da una distrib normale
+        Costruisco le liste che descrivono quanto ho elaborato in CPU in questo step e quanto ho messo in coda
+        Viene data precedenza all'elaborazione delle requests in coda dallo step precedente
+        '''
         self.CPU_workload, self.queue_workload, new_rejections = workload.manage_workload(self.local, self.CPU_capacity, 
                                                                     self.DFAAS_capacity, self.queue_workload, self.max_queue_capacity,
                                                                     self.max_CPU_capacity, self.max_DFAAS_capacity)
@@ -101,13 +129,20 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
-        #print(f"Steps non in congestione: {self.congestione_zero_count}")
-        #print(f"Steps in congestione: {self.congestione_one_count}")
-        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+        
         truncated = False
         terminated = done
         info = {}
         
+        #print(f"Steps non in congestione: {self.congestione_zero_count}")
+        #print(f"Steps in congestione: {self.congestione_one_count}")
+        state = {
+            'input_requests': np.array([self.input_requests], dtype=np.float32),
+            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
+            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
+            'cong1': np.array([self.cong1], dtype=np.float32),
+            'cong2': np.array([self.cong2], dtype=np.float32)
+        }
         return state, reward, truncated, terminated, info
     
     def render(self, mode="human", close=False):
