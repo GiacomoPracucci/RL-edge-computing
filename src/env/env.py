@@ -6,19 +6,14 @@ from env.env_functions import process_actions, calculate_reward1, update_obs_spa
 from env.workload_management import workload
 
 # ENV CLASS
+# ENV CLASS
 class TrafficManagementEnv(gym.Env):
     def __init__(self, CPU_capacity = 1000, queue_capacity = 100, DFAAS_capacity = 8000, forward_capacity = 100,
                 average_requests = 100, amplitude_requests = 50, period=50, cong1 = 0, cong2 =0, forward_exceed = 0):
         super().__init__()
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
-        self.observation_space = spaces.Dict({
-            'input_requests': spaces.Box(low=50, high=150, shape=(1,), dtype=np.float32),
-            'queue_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
-            'forward_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
-            'cong1': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32),
-            'cong2': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
-        })
+        self.observation_space = spaces.Box(low = np.array([50, 0, 0, 0, 0]), high = np.array([150, 100, 100, 1, 1]), dtype = np.float32)
 
         self.max_CPU_capacity = CPU_capacity
         self.max_queue_capacity = queue_capacity
@@ -33,8 +28,6 @@ class TrafficManagementEnv(gym.Env):
         self.congestione_one_count = 0
         self.total_managed_requests = 0
         self.total_rejected_requests = 0
-        self.total_forwarded_requests = 0
-        self.total_local_requests = 0
         
         self.average_requests = average_requests
         self.amplitude_requests = amplitude_requests
@@ -43,13 +36,11 @@ class TrafficManagementEnv(gym.Env):
         
         self.queue_workload = []
         self.input_requests = self.calculate_requests()
-        
-        self.reward_range = (-np.inf, np.inf)
     
     def calculate_requests(self):
         return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
     
-    def reset(self, seed=None, options=None):
+    def reset(self):
         self.t = 0
         self.CPU_capacity = self.max_CPU_capacity
         self.queue_capacity = self.max_queue_capacity
@@ -60,19 +51,14 @@ class TrafficManagementEnv(gym.Env):
         self.queue_shares = 0
         self.queue_workload = []
         self.total_rejected_requests = 0
-        self.total_forwarded_requests = 0
-        self.total_local_requests = 0
         self.cong1 = 0
         self.cong2 = 0
 
-        initial_observation = {
-            'input_requests': np.array([self.input_requests], dtype=np.float32),
-            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
-            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
-            'cong1': np.array([self.cong1], dtype=np.float32),
-            'cong2': np.array([self.cong2], dtype=np.float32)
-        }
-        return initial_observation, {}
+        return np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+    
+    @property
+    def render_mode(self) -> str:
+        return self._render_mode
     
     def step(self, action):
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA
@@ -86,8 +72,6 @@ class TrafficManagementEnv(gym.Env):
         #2. ESTRAGGO, SALVO E VISUALIZZO IL NUMERO DI RICHIESTE ELABORATE LOCALMENTE, INOLTRATE E RIFIUTATE
         self.local, self.forwarded, self.rejected = process_actions(action, self.input_requests)
         self.total_managed_requests += self.local + self.forwarded + self.rejected
-        self.total_forwarded_requests += self.forwarded
-        self.total_local_requests += self.local
         #print(f"LOCAL: {self.local}")
         #print(f"FORWARDED: {self.forwarded}")
         #print(f"REJECTED: {self.rejected}")
@@ -116,27 +100,7 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
-        
-        truncated = False
-        terminated = done
-        info = {}
-        
         #print(f"Steps non in congestione: {self.congestione_zero_count}")
         #print(f"Steps in congestione: {self.congestione_one_count}")
-        state = {
-            'input_requests': np.array([self.input_requests], dtype=np.float32),
-            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
-            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
-            'cong1': np.array([self.cong1], dtype=np.float32),
-            'cong2': np.array([self.cong2], dtype=np.float32)
-        }
-        return state, reward, truncated, terminated, info
-    
-    def render(self, mode="human", close=False):
-        pass
-
-    def close(self):
-        pass
-
-    def seed(self, seed=None):
-        pass
+        state = np.array([self.input_requests, self.queue_capacity, self.forward_capacity, self.cong1, self.cong2], dtype=np.float32)
+        return state, reward, done
