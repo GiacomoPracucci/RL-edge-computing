@@ -13,11 +13,11 @@ class TrafficManagementEnv(gym.Env):
         
         self.action_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
         self.observation_space = spaces.Dict({
-            'input_requests': spaces.Box(low=50, high=150, shape=(), dtype=np.float32),
-            'queue_capacity': spaces.Box(low=0, high=100, shape=(), dtype=np.float32),
-            'forward_capacity': spaces.Box(low=0, high=100, shape=(), dtype=np.float32),
-            'cong1': spaces.Box(low=0, high=1, shape=(), dtype=np.float32),
-            'cong2': spaces.Box(low=0, high=1, shape=(), dtype=np.float32)
+            'input_requests': spaces.Box(low=50, high=150, shape=(1,), dtype=np.float32),
+            'queue_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
+            'forward_capacity': spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
+            'cong1': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32),
+            'cong2': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
         })
 
         self.max_CPU_capacity = CPU_capacity
@@ -49,7 +49,7 @@ class TrafficManagementEnv(gym.Env):
     def calculate_requests(self):
         return int(self.average_requests + self.amplitude_requests * math.sin(2 * math.pi * self.t / self.period))
     
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.t = 0
         self.CPU_capacity = self.max_CPU_capacity
         self.queue_capacity = self.max_queue_capacity
@@ -65,17 +65,14 @@ class TrafficManagementEnv(gym.Env):
         self.cong1 = 0
         self.cong2 = 0
 
-        return {
-            'input_requests': self.input_requests,
-            'queue_capacity': self.queue_capacity,
-            'forward_capacity': self.forward_capacity,
-            'cong1': self.cong1,
-            'cong2': self.cong2
+        initial_observation = {
+            'input_requests': np.array([self.input_requests], dtype=np.float32),
+            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
+            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
+            'cong1': np.array([self.cong1], dtype=np.float32),
+            'cong2': np.array([self.cong2], dtype=np.float32)
         }
-    
-    @property
-    def render_mode(self) -> str:
-        return self._render_mode
+        return initial_observation, {}
     
     def step(self, action):
         #1. VISUALIZZO LO STATO ATTUALE DEL SISTEMA
@@ -119,13 +116,27 @@ class TrafficManagementEnv(gym.Env):
         self.queue_capacity, self.queue_shares, self.t, done, self.forward_capacity, self.forward_capacity_t, self.cong1, self.cong2, self.congestione_zero_count, self.congestione_one_count, self.input_requests = update_obs_space(scenario, self.average_requests, self.amplitude_requests, self.queue_workload, self.queue_capacity, self.max_queue_capacity, self.t,
                                                                                                                                                                                                                                         self.forward_capacity, self.forward_capacity_t, self.period, self.cong1, self.cong2,
                                                                                                                                                                                                                                         self.forward_exceed, self.congestione_zero_count, self.congestione_one_count)   
+        
+        truncated = False
+        terminated = done
+        info = {}
+        
         #print(f"Steps non in congestione: {self.congestione_zero_count}")
         #print(f"Steps in congestione: {self.congestione_one_count}")
         state = {
-            'input_requests': self.input_requests,
-            'queue_capacity': self.queue_capacity,
-            'forward_capacity': self.forward_capacity,
-            'cong1': self.cong1,
-            'cong2': self.cong2
+            'input_requests': np.array([self.input_requests], dtype=np.float32),
+            'queue_capacity': np.array([self.queue_capacity], dtype=np.float32),
+            'forward_capacity': np.array([self.forward_capacity], dtype=np.float32),
+            'cong1': np.array([self.cong1], dtype=np.float32),
+            'cong2': np.array([self.cong2], dtype=np.float32)
         }
-        return state, reward, done
+        return state, reward, truncated, terminated, info
+    
+    def render(self, mode="human", close=False):
+        pass
+
+    def close(self):
+        pass
+
+    def seed(self, seed=None):
+        pass
