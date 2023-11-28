@@ -14,7 +14,6 @@ Code scripts are organized in the following way:
 5. The `training folder` contains:
       - the `training_SAC.py` and `training_PPO` files for SAC and PPO training, which specifies how agent training takes place (episodes, results graphs, etc.).
 6. The `utils directory` contains useful scripts:
-   - `genome_test.py` is the file that loads the winning genome weights and runs an episode of the environment
    - `check gradients.py` is the script that checks the gradient values ​​of the networks
 7. The `test directory` contains the scripts needed to run simulation of the 3 algorithms in the implemented scenarios
 8. The `optimization directory` contains the scripts needed to run bayesian optimization of the 3 algorithms in the implemented scenarios
