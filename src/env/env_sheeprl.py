@@ -5,13 +5,12 @@ import math
 from env.env_functions import process_actions, calculate_reward1, update_obs_space
 from env.workload_management import workload
 
-'''
-Questa e una versione speciale dell'ambiente che rispetta le specifiche necessarie 
-per essere utilizzato come ambiente personalizzato nel framework di RL sheeprl.
-Non funziona negli algoritmi presenti nel repo perchè lo stato viene salvato come dizionario,
-formato non supportato in questo codice.
-Repo del framework: https://github.com/Eclectic-Sheep/sheeprl
-Come aggiungere l'env a sheeprl: https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/add_environment.md
+'''This script contains a special version of the environment that meets the specifications necessary 
+to be used as a custom environment in the RL sheeprl framework.
+It does not work in the algorithms in the repo because the state is saved as a dictionary,
+a format not supported in this code.
+sheeeprl: https://github.com/Eclectic-Sheep/sheeprl
+How to add an env in sheeprl: https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/add_environment.md
 '''
 
 # ENV CLASS
