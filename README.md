@@ -1,5 +1,7 @@
 # Reinforcement Learning for load distribution in decentralized Edge environment
 
+Paper: https://dl.acm.org/doi/10.1145/3660319.3660331
+
 ## Description
 The project proposes the implementation of  SAC (Soft actor-critic) and PPO (Proximal Policy Optimization) deep reinforcement learning algorithms and of the evolutionary algorithm NEAT (Neuro Evolution of Augmenting Topologies) to optimize workload management in an Edge Computing system (DFaaS). The goal is to find the optimal policy for local processing, forwarding of requests to edge nodes, and rejection of requests based on system conditions.
 The current implementation still has simplifying assumptions compared to the real scenario.
